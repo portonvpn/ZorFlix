@@ -1095,7 +1095,7 @@ function updatePlayerSrc() {
   const sNum = document.getElementById('season-select').value || 1;
   const eNum = document.getElementById('episode-select').value || 1;
   const frame = document.getElementById('player');
-  frame.src = `https://vidlink.pro/tv/${currentDetailItem.id}/${sNum}/${eNum}`;
+  frame.src = `https://thisiscinema.pages.dev/?type=tv&version=v3&id=${currentDetailItem.id}&season=${sNum}&episode=${eNum}`;
   document.getElementById('now-playing-name').textContent = `${title(currentDetailItem)} - S${sNum} E${eNum}`;
 }
 
@@ -1234,10 +1234,10 @@ function openPlayer() {
   if (currentDetailType === 'tv') {
     const sNum = document.getElementById('season-select').value || 1;
     const eNum = document.getElementById('episode-select').value || 1;
-    frame.src = `https://vidlink.pro/tv/${currentDetailItem.id}/${sNum}/${eNum}`;
+    frame.src = `https://thisiscinema.pages.dev/?type=tv&version=v3&id=${currentDetailItem.id}&season=${sNum}&episode=${eNum}`;
     document.getElementById('now-playing-name').textContent = `${title(currentDetailItem)} - S${sNum} E${eNum}`;
   } else {
-    frame.src = `https://vidlink.pro/movie/${currentDetailItem.id}`;
+    frame.src = `https://thisiscinema.pages.dev/?type=movie&version=v3&id=${currentDetailItem.id}`;
     document.getElementById('now-playing-name').textContent = title(currentDetailItem);
   }
   wrap.style.display = 'block';
