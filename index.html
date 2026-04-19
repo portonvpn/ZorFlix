@@ -1266,8 +1266,8 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
 </div>
 
 <!-- NOTICE BANNER -->
-<div class="notice-banner" id="noticeBanner">
-  <span>⚠️ Some ads may persist in the player due to an API issue — will be fixed soon.</span>
+<div class="notice-banner" id="noticeBanner" style="display:none">
+  <span>⚠️ Some ads may persist in the player — use an ad blocker for best experience.</span>
   <button onclick="document.getElementById('noticeBanner').remove()">✕</button>
 </div>
 
@@ -2629,8 +2629,8 @@ function makeContinueWatchingRow() {
       <div class="cw-play-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z"/></svg></div>
       <div class="cw-info">
         <div class="cw-title">${c.title}</div>
-        <div class="cw-sub">Resume ${c.progress || 0}% · ${c.type === 'tv' ? 'TV Show' : 'Movie'}${c.year ? ' · '+c.year : ''}</div>
-        <div class="cw-progress-wrap"><div class="cw-progress-fill" style="width:${c.progress||30}%"></div></div>
+        <div class="cw-sub">${c.progress > 0 ? 'Resume '+c.progress+'% · ' : ''}${c.type === 'tv' ? 'S'+(c.season||1)+' E'+(c.episode||1) : 'Movie'}${c.year ? ' · '+c.year : ''}</div>
+        <div class="cw-progress-wrap"><div class="cw-progress-fill" style="width:${Math.max(c.progress||5,5)}%"></div></div>
       </div>
     </div>`;
   }).join('');
@@ -2806,7 +2806,6 @@ async function openDetail(m, type) {
       ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg> Resume'
       : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg> Watch Now';
   }
-  addContinueWatching({ id:m.id, type, title:titleOf(m), poster:m.poster_path, backdrop:m.backdrop_path, rating:m.vote_average, year:yearOf(m) });
   try {
     const [details, credits, similar, videos] = await Promise.all([
       apiFetch(`${type}/${m.id}`), apiFetch(`${type}/${m.id}/credits`), apiFetch(`${type}/${m.id}/similar`), apiFetch(`${type}/${m.id}/videos`),
@@ -2932,20 +2931,44 @@ function buildEpisodeCard(ep, sNum) {
     </div>
   </div>`;
 }
-function getAccentColor() {
-  const raw = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-  return raw.replace(/^#/, '');
+const CINETARO_BASE = 'https://apicinetaro.falex43350.workers.dev';
+function buildPlayerUrl(type, id, season, episode) {
+  if (type === 'movie') return `${CINETARO_BASE}/movie/${id}/english`;
+  return `${CINETARO_BASE}/tv/${id}/${season}/${episode}/english`;
 }
-function buildPlayerUrl(path) {
-  const color = getAccentColor();
-  return `https://vaplayer.ru/embed/${path}${color ? '?color=%23' + color : ''}`;
+
+/* ===== CONTINUE WATCHING: progress tracking via postMessage ===== */
+let _cwProgressTimer = null;
+let _cwCurrentProgress = 0;
+function _startCwProgressTracking(item) {
+  clearInterval(_cwProgressTimer);
+  _cwCurrentProgress = 0;
+  _cwProgressTimer = setInterval(() => {
+    if (_cwCurrentProgress < 95) _cwCurrentProgress = Math.min(95, _cwCurrentProgress + 0.5);
+    const updatedItem = { ...item, progress: Math.round(_cwCurrentProgress) };
+    if (!userSettings.continuewatching) return;
+    const profileId = activeProfileId || 'default';
+    const idx = continueWatching.findIndex(i => i.id === item.id && i.type === item.type && (i.profileId || 'default') === profileId);
+    if (idx >= 0) {
+      continueWatching[idx].progress = Math.round(_cwCurrentProgress);
+      localStorage.setItem('zorflix_continue', JSON.stringify(continueWatching));
+    }
+  }, 30000);
 }
+function _stopCwProgressTracking() {
+  clearInterval(_cwProgressTimer);
+  _cwProgressTimer = null;
+}
+
 function playEpisode(sNum, eNum) {
   if (!currentDetailItem) return;
-  const src = buildPlayerUrl(`tv/${currentDetailItem.id}/${sNum}/${eNum}`);
+  const src = buildPlayerUrl('tv', currentDetailItem.id, sNum, eNum);
   const label = `${titleOf(currentDetailItem)} · S${sNum} E${eNum}`;
   currentPlayerSrc = src;
-  addContinueWatching({ id:currentDetailItem.id, type:'tv', title:titleOf(currentDetailItem), poster:currentDetailItem.poster_path, backdrop:currentDetailItem.backdrop_path, rating:currentDetailItem.vote_average, year:yearOf(currentDetailItem), season:Number(sNum), episode:Number(eNum), progress:18 });
+  const cwItem = { id:currentDetailItem.id, type:'tv', title:titleOf(currentDetailItem), poster:currentDetailItem.poster_path, backdrop:currentDetailItem.backdrop_path, rating:currentDetailItem.vote_average, year:yearOf(currentDetailItem), season:Number(sNum), episode:Number(eNum), progress:5 };
+  addContinueWatching(cwItem);
+  _stopCwProgressTracking();
+  _startCwProgressTracking(cwItem);
   if (isIOS()) {
     openIOSOverlay(src);
   } else {
@@ -2969,15 +2992,21 @@ function togglePlayer() { playerOpen ? closePlayer() : openPlayer(); }
 function openPlayer(options = {}) {
   if (!currentDetailItem) return;
   const resume = options.resume || pendingContinueAutoPlay;
+  let cwItem;
   if (currentDetailType === 'tv') {
-    const sNum = resume && resume.type === 'tv' ? (resume.season || 1) : (document.getElementById('season-select').value || 1);
-    const eNum = resume && resume.type === 'tv' ? (resume.episode || 1) : 1;
-    currentPlayerSrc = buildPlayerUrl(`tv/${currentDetailItem.id}/${sNum}/${eNum}`);
+    const sNum = Number(resume && resume.type === 'tv' ? (resume.season || 1) : (document.getElementById('season-select').value || 1));
+    const eNum = Number(resume && resume.type === 'tv' ? (resume.episode || 1) : 1);
+    currentPlayerSrc = buildPlayerUrl('tv', currentDetailItem.id, sNum, eNum);
     document.getElementById('now-playing-name').textContent = `${titleOf(currentDetailItem)} · S${sNum} E${eNum}`;
+    cwItem = { id:currentDetailItem.id, type:'tv', title:titleOf(currentDetailItem), poster:currentDetailItem.poster_path, backdrop:currentDetailItem.backdrop_path, rating:currentDetailItem.vote_average, year:yearOf(currentDetailItem), season:sNum, episode:eNum, progress: (resume && resume.progress) || 5 };
   } else {
-    currentPlayerSrc = buildPlayerUrl(`movie/${currentDetailItem.id}`);
+    currentPlayerSrc = buildPlayerUrl('movie', currentDetailItem.id);
     document.getElementById('now-playing-name').textContent = titleOf(currentDetailItem);
+    cwItem = { id:currentDetailItem.id, type:'movie', title:titleOf(currentDetailItem), poster:currentDetailItem.poster_path, backdrop:currentDetailItem.backdrop_path, rating:currentDetailItem.vote_average, year:yearOf(currentDetailItem), progress: (resume && resume.progress) || 5 };
   }
+  addContinueWatching(cwItem);
+  _stopCwProgressTracking();
+  _startCwProgressTracking(cwItem);
   if (isIOS()) {
     openIOSOverlay(currentPlayerSrc);
     pendingContinueAutoPlay = null;
@@ -3027,6 +3056,7 @@ function closeIOSOverlay() {
   document.body.style.overflow = '';
 }
 function closePlayer() {
+  _stopCwProgressTracking();
   if (isIOS()) { closeIOSOverlay(); return; }
   const frame = document.getElementById('player');
   if (frame) frame.src = '';
@@ -3195,7 +3225,7 @@ document.addEventListener('mousedown', e => {
   document.addEventListener('mouseup', onUp);
 });
 
-/* ===================== boob ===================== */
+/* ===================== BOOT ===================== */
 let appInitialized = false;
 
 function bootApp() {
@@ -3214,3 +3244,4 @@ loadSettings();
 </script>
 </body>
 </html>
+
