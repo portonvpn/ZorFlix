@@ -1244,6 +1244,12 @@ function openPlayer() {
   document.getElementById('d-watch-btn').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="18"/></svg> Hide Player';
   playerOpen = true;
   wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  setTimeout(() => {
+    if (frame.requestFullscreen) frame.requestFullscreen();
+    else if (frame.webkitRequestFullscreen) frame.webkitRequestFullscreen();
+    else if (frame.mozRequestFullScreen) frame.mozRequestFullScreen();
+    else if (frame.msRequestFullscreen) frame.msRequestFullscreen();
+  }, 300);
 }
 function closePlayer() {
   const frame = document.getElementById('player');
@@ -1403,9 +1409,22 @@ document.addEventListener('mousedown', e => {
   document.addEventListener('mouseup', onUp);
 });
 
+document.addEventListener('fullscreenchange', handleFullscreenExit);
+document.addEventListener('webkitfullscreenchange', handleFullscreenExit);
+document.addEventListener('mozfullscreenchange', handleFullscreenExit);
+document.addEventListener('MSFullscreenChange', handleFullscreenExit);
+
+function handleFullscreenExit() {
+  const fsEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+  if (!fsEl && playerOpen) {
+    closePlayer();
+  }
+}
+
 showPage('home');
 document.getElementById('home-page').style.display = 'block';
 init();
 </script>
 </body>
 </html>
+
