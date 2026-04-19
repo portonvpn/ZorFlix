@@ -13,8 +13,8 @@
 <meta name="twitter:title" content="ZorFlix">
 <meta name="twitter:description" content="The fastest modern streaming discovery platform.">
 <meta name="twitter:image" content="icon.png">
-<link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="https://zorflix.vercel.app/icon.png">
+<link rel="apple-touch-icon" href="https://zorflix.vercel.app/icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -176,7 +176,19 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
   transition:opacity .5s,transform .5s;
 }
 #profile-screen.hide{opacity:0;transform:scale(1.06);pointer-events:none}
-.profile-screen-logo-img{width:68px;height:68px;border-radius:16px;object-fit:cover;margin-bottom:20px;box-shadow:0 0 40px var(--accent-glow)}
+
+.profile-screen-logo-img{
+  width:68px;
+  height:68px;
+  object-fit:contain;
+  margin-bottom:20px;
+
+  opacity:1 !important;
+  filter:none !important;
+  mix-blend-mode:normal !important;
+  image-rendering:auto;
+}
+
 .profile-screen-logo{font-family:'Bebas Neue',cursive;font-size:3rem;color:var(--accent);letter-spacing:8px;margin-bottom:48px}
 .profile-screen-title{font-size:1.4rem;font-weight:300;color:rgba(255,255,255,.7);margin-bottom:40px;letter-spacing:.5px}
 .profiles-grid{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;margin-bottom:40px}
@@ -431,7 +443,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
 #nav.scrolled{background:var(--nav-bg);box-shadow:0 1px 0 var(--border)}
 .logo{display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0;user-select:none;transition:opacity .15s}
 .logo:hover{opacity:.85}
-.logo-img{width:32px;height:32px;border-radius:8px;object-fit:cover}
+.logo-img{width:32px;height:32px;object-fit:contain;image-rendering:auto}
 .logo-text{font-family:'Bebas Neue',cursive;font-size:2.1rem;color:var(--accent);letter-spacing:6px}
 .nav-links{display:flex;gap:2px;margin-left:10px}
 .nav-link{
@@ -1138,7 +1150,6 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
 
 <!-- PROFILE SCREEN -->
 <div id="profile-screen">
-  <img src="icon.png" class="profile-screen-logo-img" alt="ZorFlix" onerror="this.style.display='none'">
   <div class="profile-screen-logo">ZORFLIX</div>
   <div class="profile-screen-title">Who's watching?</div>
   <div class="profiles-grid" id="profiles-grid"></div>
@@ -1263,7 +1274,6 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
 <!-- NAV -->
 <nav id="nav">
   <div class="logo" onclick="showHome()">
-    <img src="icon.png" class="logo-img" alt="" onerror="this.style.display='none'">
     <span class="logo-text">ZORFLIX</span>
   </div>
   <div class="nav-links">
@@ -3195,3 +3205,4 @@ loadSettings();
 </script>
 </body>
 </html>
+
