@@ -2933,7 +2933,7 @@ function buildEpisodeCard(ep, sNum) {
 }
 function playEpisode(sNum, eNum) {
   if (!currentDetailItem) return;
-  const src = `https://thisiscinema.pages.dev/?type=tv&version=v3&id=${currentDetailItem.id}&season=${sNum}&episode=${eNum}`;
+  const src = `https://vidfast.pro/tv/${currentDetailItem.id}/${sNum}/${eNum}`;
   const label = `${titleOf(currentDetailItem)} · S${sNum} E${eNum}`;
   currentPlayerSrc = src;
   addContinueWatching({ id:currentDetailItem.id, type:'tv', title:titleOf(currentDetailItem), poster:currentDetailItem.poster_path, backdrop:currentDetailItem.backdrop_path, rating:currentDetailItem.vote_average, year:yearOf(currentDetailItem), season:Number(sNum), episode:Number(eNum), progress:18 });
@@ -2963,10 +2963,10 @@ function openPlayer(options = {}) {
   if (currentDetailType === 'tv') {
     const sNum = resume && resume.type === 'tv' ? (resume.season || 1) : (document.getElementById('season-select').value || 1);
     const eNum = resume && resume.type === 'tv' ? (resume.episode || 1) : 1;
-    currentPlayerSrc = `https://thisiscinema.pages.dev/?type=tv&version=v3&id=${currentDetailItem.id}&season=${sNum}&episode=${eNum}`;
+    currentPlayerSrc = `https://vidfast.pro/tv/${currentDetailItem.id}/${sNum}/${eNum}`;
     document.getElementById('now-playing-name').textContent = `${titleOf(currentDetailItem)} · S${sNum} E${eNum}`;
   } else {
-    currentPlayerSrc = `https://thisiscinema.pages.dev/?type=movie&version=v3&id=${currentDetailItem.id}`;
+    currentPlayerSrc = `https://vidfast.pro/movie/${currentDetailItem.id}`;
     document.getElementById('now-playing-name').textContent = titleOf(currentDetailItem);
   }
   if (isIOS()) {
@@ -3186,7 +3186,7 @@ document.addEventListener('mousedown', e => {
   document.addEventListener('mouseup', onUp);
 });
 
-/* ===================== BOOT ===================== */
+/* ===================== bthc ===================== */
 let appInitialized = false;
 
 function bootApp() {
@@ -3205,4 +3205,3 @@ loadSettings();
 </script>
 </body>
 </html>
-
