@@ -128,22 +128,30 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
 
 /* ===== PROFILE MODAL ===== */
 #profile-modal{
-  position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);
-  display:none;align-items:center;justify-content:center;
+  position:fixed;inset:0;z-index:12000;background:rgba(0,0,0,.86);backdrop-filter:blur(14px);
+  display:none;align-items:center;justify-content:center;padding:18px;
 }
 #profile-modal.open{display:flex}
 .profile-modal-box{
-  background:var(--bg2);border:1px solid var(--border2);border-radius:20px;
-  padding:36px;width:360px;max-width:95vw;
-  animation:modalIn .25s ease;
+  background:linear-gradient(180deg,var(--bg2),#080808);border:1px solid var(--border2);border-radius:20px;
+  padding:30px;width:380px;max-width:95vw;max-height:88vh;overflow-y:auto;
+  animation:modalIn .25s ease;box-shadow:0 28px 90px rgba(0,0,0,.75);
 }
+.profile-modal-box.manager-mode{background:linear-gradient(180deg,#0a0a0d,#020203);border-color:rgba(255,255,255,.18)}
+.profile-modal-hint{font-size:.78rem;color:var(--txt3);margin:-14px 0 18px;line-height:1.5}
+.profile-current-chip{font-size:.62rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#22c55e;border:1px solid rgba(34,197,94,.35);background:rgba(34,197,94,.12);border-radius:999px;padding:4px 8px;margin-left:auto}
+.profile-list-item.active{background:linear-gradient(90deg,rgba(255,255,255,.08),transparent);border:1px solid var(--border)}
+.profile-list-item.switchable{cursor:pointer}
+.profile-list-item.switchable:hover{background:var(--bg3);transform:translateX(2px)}
+.profile-modal-actions{display:flex;gap:10px;margin-top:14px}
+.profile-modal-actions .btn-cancel,.profile-modal-actions .btn-save{padding:11px 12px;font-size:.82rem}
 @keyframes modalIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
 .profile-modal-title{font-size:1.2rem;font-weight:700;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between}
 .modal-close{background:none;border:none;color:var(--txt2);cursor:pointer;font-size:1.2rem;transition:color .15s}
 .modal-close:hover{color:var(--accent)}
 .profile-list-item{
   display:flex;align-items:center;gap:14px;padding:12px;border-radius:12px;
-  cursor:pointer;transition:background .15s;position:relative;
+  cursor:default;transition:background .15s,transform .15s,border-color .15s;position:relative;border:1px solid transparent;
 }
 .profile-list-item:hover{background:var(--bg3)}
 .profile-list-avatar{width:52px;height:52px;border-radius:10px;overflow:hidden;background:var(--bg4);flex-shrink:0}
@@ -607,9 +615,29 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
 .ep-airdate{font-size:.7rem;color:var(--txt3)}
 .ep-runtime{font-size:.7rem;color:var(--txt3)}
 @media(max-width:600px){
-  .episode-card{flex-direction:column;gap:10px}
-  .ep-thumb{width:100%;min-width:unset}
-  .ep-desc{-webkit-line-clamp:3}
+  .tv-ep-header{margin-bottom:10px}
+  .tv-season-select-modern{width:100%;padding:8px 34px 8px 12px;font-size:.8rem}
+  .episode-list{gap:8px}
+  .episode-card{gap:10px;padding:8px;border-radius:12px;align-items:center}
+  .ep-thumb{width:112px;min-width:112px;border-radius:8px}
+  .ep-info{gap:3px;padding:0}
+  .ep-name{font-size:.82rem;line-height:1.25}
+  .ep-num{font-size:.58rem}
+  .ep-desc{font-size:.72rem;line-height:1.35;-webkit-line-clamp:2}
+  .ep-meta{gap:7px;padding-top:2px}
+  .ep-play-btn{opacity:1;transform:scale(.82);width:34px;height:34px}
+}
+@media(max-width:420px){
+  .profile-screen-logo{font-size:2.25rem;margin-bottom:28px}
+  .profile-screen-title{font-size:1.1rem;margin-bottom:26px}
+  .profiles-grid{gap:18px}
+  .profile-avatar{width:76px;height:76px}
+  .profile-modal-box,.edit-modal-box{padding:24px 18px;border-radius:18px}
+  .pin-input{width:44px;height:48px}
+  .episode-card{gap:8px;padding:7px}
+  .ep-thumb{width:96px;min-width:96px}
+  .ep-desc{-webkit-line-clamp:1}
+  .ep-airdate,.ep-runtime{display:none}
 }
 .detail-stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px}
 .detail-stat{display:flex;flex-direction:column;gap:3px}
@@ -716,6 +744,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
 }
 #back-btn:hover{background:rgba(255,255,255,.1);color:var(--txt)}
 .hidden{display:none!important}
+#mobile-bottom-nav{display:none}
 .progress-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.15)}
 .progress-fill{height:100%;background:var(--accent);border-radius:0 2px 2px 0}
 #search-dropdown{
@@ -735,8 +764,11 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
   .detail-layout{padding:0 16px 40px}
   #hero .hero-content{left:20px}
   .section-header{padding:0 18px}
-  .row-scroll{padding:4px 18px 10px}
+  .row-scroll{padding:4px 18px 10px;scroll-padding-left:18px}
   #search-page,#list-page,#settings-page{padding:84px 18px 60px}
+  #toast-container{left:16px;right:16px;bottom:18px}
+  .toast{max-width:none;width:100%;justify-content:center}
+  .notice-banner{left:12px;right:12px;top:68px;font-size:.72rem}
 }
 .notice-banner{
   position:fixed;top:70px;right:20px;z-index:8999;
@@ -804,6 +836,127 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
   transition:background .15s;
 }
 #ios-fs-close:hover{ background:rgba(229,9,20,.7); }
+
+@media(max-width:760px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  body{padding-bottom:calc(86px + env(safe-area-inset-bottom));font-size:15px}
+  #nav{height:56px;padding:0 12px;gap:8px;background:rgba(8,8,8,.94);box-shadow:0 1px 0 var(--border);backdrop-filter:blur(18px)}
+  .logo{font-size:1.7rem;letter-spacing:3px}
+  #nav .nav-icon-btn[title="Random Movie"],#nav .watchlist-badge,.hamburger{display:none!important}
+  .profile-nav-btn{width:34px;height:34px;border-radius:10px}
+  #mobile-menu{display:none!important}
+  #mobile-search{display:block;position:fixed;top:56px;left:0;right:0;z-index:480;padding:8px 12px;background:linear-gradient(to bottom,rgba(8,8,8,.96),rgba(8,8,8,.82));border-bottom:1px solid var(--border);backdrop-filter:blur(16px)}
+  #mobile-search .search-wrap{width:100%;height:40px;border-radius:12px;background:rgba(255,255,255,.07);padding:0 12px}
+  #mobile-search input{font-size:16px}
+  #mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:650;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:7px 8px calc(7px + env(safe-area-inset-bottom));background:rgba(8,8,8,.97);border-top:1px solid var(--border2);box-shadow:0 -14px 34px rgba(0,0,0,.55);backdrop-filter:blur(20px)}
+  .mobile-bottom-btn{min-width:0;height:54px;border:0;border-radius:14px;background:transparent;color:var(--txt3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:'Inter',sans-serif;font-size:.64rem;font-weight:700;letter-spacing:.1px}
+  .mobile-bottom-btn svg{width:20px;height:20px}
+  .mobile-bottom-btn:active,.mobile-bottom-btn.active{background:rgba(255,255,255,.08);color:var(--txt)}
+  #hero{height:58vh;min-height:390px;max-height:520px;margin-top:0}
+  .hero-bg,.hero-bg-next{background-position:center top}
+  .hero-grad{background:linear-gradient(to bottom,rgba(0,0,0,.18),rgba(0,0,0,.58) 44%,var(--bg) 100%),linear-gradient(to right,rgba(0,0,0,.82),rgba(0,0,0,.18))}
+  .hero-content{left:14px!important;right:14px;bottom:34px;max-width:none}
+  .hero-tag{font-size:.6rem;letter-spacing:2px;margin-bottom:8px}
+  .hero-title{font-size:clamp(2.35rem,11vw,3.65rem);line-height:.92;margin-bottom:10px}
+  .hero-meta{gap:7px;margin-bottom:8px}
+  .hero-desc{font-size:.8rem;line-height:1.45;margin-bottom:14px;-webkit-line-clamp:2}
+  .hero-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .hero-actions button,.detail-actions button{justify-content:center;min-height:44px;padding:11px 10px;border-radius:12px;font-size:.82rem}
+  #hero-btn{grid-column:1/-1}
+  .hero-arrows{display:none}
+  .hero-dots{bottom:10px}
+  #main-content{padding-top:6px}
+  .section-block{padding-bottom:24px}
+  .section-header{padding:0 14px;margin-bottom:10px}
+  .section-label{font-size:.66rem;letter-spacing:2px}
+  .see-all-btn{font-size:.7rem}
+  .row-fade-left,.row-fade-right,.row-btn{display:none!important}
+  .row-scroll{gap:8px;padding:2px 14px 16px;scroll-padding-left:14px;scroll-snap-type:x mandatory}
+  .card{width:31vw;min-width:104px;max-width:128px;border-radius:11px;box-shadow:0 7px 18px rgba(0,0,0,.35)}
+  .card:hover{transform:none;box-shadow:0 7px 18px rgba(0,0,0,.35)}
+  .card-overlay{opacity:1;padding:7px;background:linear-gradient(to top,rgba(0,0,0,.88),rgba(0,0,0,.22) 52%,transparent)}
+  .card-title{font-size:.66rem;line-height:1.22;margin-bottom:0}
+  .card-meta,.card-play{display:none}
+  .card-rating-top{top:6px;right:6px;font-size:.55rem;padding:2px 5px}
+  .card-badges{top:6px;left:6px}
+  .badge{font-size:.48rem;padding:2px 5px;border-radius:4px}
+  .card-list-btn{opacity:1;bottom:6px;right:6px;width:24px;height:24px;background:rgba(0,0,0,.62)}
+  .cw-card{width:72vw;max-width:270px;border-radius:13px}
+  .cw-play-icon{opacity:1;transform:translate(-50%,-80%) scale(.88)}
+  .cw-info{padding:9px 10px 11px}
+  .cw-title{font-size:.8rem}
+  .skeleton-card{width:31vw;min-width:104px;max-width:128px}
+  .detail-backdrop{height:285px}
+  .detail-backdrop-bg{background-position:center top;filter:none;transform:scale(1.01)}
+  .detail-backdrop-grad{background:linear-gradient(to bottom,rgba(0,0,0,.08),rgba(0,0,0,.62) 54%,var(--bg) 100%)}
+  .detail-layout{display:block;padding:0 12px calc(96px + env(safe-area-inset-bottom));margin-top:-70px}
+  #d-poster-col{display:none}
+  #d-info-col{width:100%}
+  .detail-title{font-size:clamp(2.15rem,10vw,3.2rem);line-height:.9;margin-bottom:9px;text-shadow:0 8px 28px #000}
+  .detail-tagline{font-size:.78rem;margin-bottom:9px}
+  .detail-meta{gap:6px;margin-bottom:11px}
+  .star-badge,.meta-item,.genre-pill{font-size:.68rem}
+  .genre-pill{padding:3px 8px}
+  .detail-overview{font-size:.82rem;line-height:1.55;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+  .detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  #d-watch-btn{grid-column:1/-1}
+  #player-wrap{margin:8px 0 14px}
+  #player{border-radius:12px;min-height:200px}
+  .player-bar{padding:10px 12px;gap:8px;align-items:flex-start;flex-direction:column}
+  .now-playing{font-size:.72rem;line-height:1.35}
+  .close-player-btn{width:100%;height:36px;border-radius:9px;background:var(--bg4)}
+  #tv-episodes-section{margin:12px -2px 18px;padding:12px 10px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));border:1px solid var(--border);border-radius:18px}
+  .tv-ep-header{position:sticky;top:105px;z-index:80;margin:0 -4px 10px;padding:8px 4px 10px;background:linear-gradient(to bottom,rgba(10,10,10,.97),rgba(10,10,10,.9));border-radius:14px;backdrop-filter:blur(16px)}
+  .tv-ep-header>div:first-child{width:100%;justify-content:space-between}
+  .tv-ep-label{font-size:.7rem}
+  .tv-ep-count{font-size:.7rem}
+  .tv-season-picker{width:100%;gap:0}
+  .tv-season-select-modern{width:100%;min-height:46px;padding:0 42px 0 14px;border-radius:13px;font-size:16px;background-color:var(--bg3)}
+  .episode-list{gap:8px}
+  .episode-card{gap:9px;padding:8px;border-radius:13px;align-items:center;background:rgba(255,255,255,.045)}
+  .episode-card:hover{transform:none}
+  .ep-thumb{width:112px;min-width:112px;border-radius:10px}
+  .ep-info{gap:3px;padding:0}
+  .ep-num{font-size:.56rem;letter-spacing:1.2px}
+  .ep-name{font-size:.82rem;line-height:1.22}
+  .ep-desc{font-size:.7rem;line-height:1.32;-webkit-line-clamp:2}
+  .ep-meta{gap:7px;padding-top:1px}
+  .ep-rating,.ep-airdate,.ep-runtime{font-size:.62rem}
+  .ep-play-overlay{background:rgba(0,0,0,.18)}
+  .ep-play-btn{opacity:1;transform:scale(.82);width:34px;height:34px}
+  .detail-stats{gap:9px;margin-bottom:14px}
+  .detail-stat{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:9px 10px;min-width:calc(50% - 5px)}
+  .detail-tabs{overflow-x:auto;margin-bottom:13px}
+  .detail-tab{padding:11px 18px;white-space:nowrap}
+  .cast-section{margin:0 -12px;padding:0 12px 8px}
+  .cast-row{gap:10px}
+  .cast-card{width:72px}
+  #search-page,#list-page,#settings-page{padding:118px 12px calc(96px + env(safe-area-inset-bottom))}
+  .search-page-title,.list-header h1,.settings-title{font-size:2.15rem;margin-bottom:14px}
+  .search-filters,.list-header{gap:8px;margin-bottom:14px}
+  .filter-tabs{width:100%;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+  .filter-tabs::-webkit-scrollbar{display:none}
+  .filter-tab{white-space:nowrap;padding:7px 13px}
+  .sort-select{width:100%;height:42px;font-size:16px}
+  .search-grid,.list-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .search-grid .card,.list-grid .card{width:100%;min-width:0;max-width:none}
+  .settings-card{border-radius:15px}
+  .settings-row{padding:14px 13px;gap:12px}
+  .settings-row-desc{font-size:.68rem;line-height:1.35}
+  .theme-grid{grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}
+  #back-btn{top:64px;left:12px;z-index:610;padding:8px 12px;border-radius:999px;background:rgba(0,0,0,.82)}
+  #toast-container{left:12px;right:12px;bottom:calc(82px + env(safe-area-inset-bottom))}
+  .notice-banner{left:10px;right:10px;top:auto;bottom:calc(82px + env(safe-area-inset-bottom));border-radius:14px}
+}
+@media(max-width:380px){
+  .card,.skeleton-card{width:30vw;min-width:96px}
+  .ep-thumb{width:96px;min-width:96px}
+  .ep-desc{-webkit-line-clamp:1}
+  .ep-airdate,.ep-runtime{display:none}
+  .mobile-bottom-btn{font-size:.58rem}
+  .mobile-bottom-btn svg{width:18px;height:18px}
+}
+
 </style>
 </head>
 <body class="theme-midnight">
@@ -832,18 +985,19 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
   <div class="profile-screen-logo">ZORFLIX</div>
   <div class="profile-screen-title">Who's watching?</div>
   <div class="profiles-grid" id="profiles-grid"></div>
-  <button class="profile-manage-btn" onclick="openProfileModal()">Manage Profiles</button>
+  <button class="profile-manage-btn" onclick="openProfileManager()">Manage Profiles</button>
 </div>
 
 <!-- PROFILE MANAGE MODAL -->
 <div id="profile-modal">
   <div class="profile-modal-box">
     <div class="profile-modal-title">
-      Manage Profiles
+      <span id="profile-modal-title-text">Switch Profile</span>
       <button class="modal-close" onclick="closeProfileModal()">✕</button>
     </div>
+    <div class="profile-modal-hint" id="profile-modal-hint">Pick another profile or edit your profiles.</div>
     <div id="profile-list-area"></div>
-    <div class="add-profile-btn" onclick="startAddProfile()">
+    <div class="add-profile-btn" id="profile-add-btn" onclick="startAddProfile()">
       <div class="add-profile-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
       <span style="font-size:.88rem;font-weight:500">Add Profile</span>
     </div>
@@ -877,10 +1031,10 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
     <div class="form-group">
       <label class="form-label">PIN (optional, 4 digits)</label>
       <div class="pin-inputs">
-        <input type="password" class="pin-input" maxlength="1" id="pin0" oninput="pinNext(0)">
-        <input type="password" class="pin-input" maxlength="1" id="pin1" oninput="pinNext(1)">
-        <input type="password" class="pin-input" maxlength="1" id="pin2" oninput="pinNext(2)">
-        <input type="password" class="pin-input" maxlength="1" id="pin3" oninput="pinNext(3)">
+        <input type="password" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="pin0" oninput="pinNext(0)">
+        <input type="password" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="pin1" oninput="pinNext(1)">
+        <input type="password" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="pin2" oninput="pinNext(2)">
+        <input type="password" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="pin3" oninput="pinNext(3)">
       </div>
     </div>
     <div class="switch-row">
@@ -906,10 +1060,10 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
     <h3>Enter PIN</h3>
     <p id="pin-overlay-name">Profile is PIN protected</p>
     <div class="pin-box-inputs">
-      <input type="password" class="pin-input" maxlength="1" id="pincheck0" oninput="pinCheckNext(0)">
-      <input type="password" class="pin-input" maxlength="1" id="pincheck1" oninput="pinCheckNext(1)">
-      <input type="password" class="pin-input" maxlength="1" id="pincheck2" oninput="pinCheckNext(2)">
-      <input type="password" class="pin-input" maxlength="1" id="pincheck3" oninput="pinCheckNext(3)">
+      <input type="password" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="pincheck0" oninput="pinCheckNext(0)" onkeydown="pinEnter(event)">
+      <input type="password" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="pincheck1" oninput="pinCheckNext(1)" onkeydown="pinEnter(event)">
+      <input type="password" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="pincheck2" oninput="pinCheckNext(2)" onkeydown="pinEnter(event)">
+      <input type="password" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="pincheck3" oninput="pinCheckNext(3)" onkeydown="pinEnter(event)">
     </div>
     <div class="pin-btn-row">
       <button class="btn-ghost" onclick="closePinOverlay()">Cancel</button>
@@ -949,7 +1103,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
     <span class="badge-count" id="list-badge">0</span>
   </div>
-  <div class="profile-nav-btn" id="profile-nav-btn" onclick="openProfileModal()" title="Switch Profile">
+  <div class="profile-nav-btn" id="profile-nav-btn" onclick="openProfileSwitcher()" title="Switch Profile">
     <div class="profile-nav-ph" id="profile-nav-ph">Z</div>
   </div>
   <button class="nav-icon-btn hamburger" onclick="toggleMobileMenu()">
@@ -967,6 +1121,28 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
   <div class="nav-link" onclick="showList();closeMobileMenu()">My List</div>
   <div class="nav-link" onclick="showSettings();closeMobileMenu()">Settings</div>
   <div class="nav-link" onclick="randomMovie();closeMobileMenu()">Random Movie</div>
+</div>
+<div id="mobile-bottom-nav" aria-label="Mobile navigation">
+  <button class="mobile-bottom-btn active" onclick="showHome()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 11.5 12 4l9 7.5V21h-6v-6H9v6H3z"/></svg>
+    Home
+  </button>
+  <button class="mobile-bottom-btn" onclick="browseMovies()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 5v16M17 5v16M3 10h18M3 16h18"/></svg>
+    Movies
+  </button>
+  <button class="mobile-bottom-btn" onclick="browseTV()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="m8 3 4 3 4-3"/></svg>
+    Shows
+  </button>
+  <button class="mobile-bottom-btn" onclick="showList()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    List
+  </button>
+  <button class="mobile-bottom-btn" onclick="showSettings()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1A2 2 0 1 1 4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1A2 2 0 1 1 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1A2 2 0 1 1 19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1a2 2 0 1 1 0 4H21a1.7 1.7 0 0 0-1.6 1z"/></svg>
+    More
+  </button>
 </div>
 
 <button id="back-btn" onclick="goBack()">
@@ -1232,7 +1408,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
       <div class="settings-row">
         <div class="settings-row-left">
           <div class="settings-row-label">ZorFlix</div>
-          <div class="settings-row-desc">A modern streaming discovery platform</div>
+          <div class="settings-row-desc">A modern streaming discovery platform made by Zoro (Hadi)</div>
         </div>
         <div style="font-size:.78rem;color:var(--txt3)">v3.0</div>
       </div>
@@ -1339,8 +1515,12 @@ function isKidsProfile() {
 }
 function isKidsContent(m) {
   if (!m) return false;
+  if (m.kidsSafe || m.isKidsContent) return true;
   const genres = m.genre_ids || (m.genres ? m.genres.map(g => g.id) : []);
-  return genres.some(g => KIDS_GENRE_IDS.includes(g));
+  return genres.some(g => KIDS_GENRE_IDS.includes(Number(g)));
+}
+function hasGenreInfo(m) {
+  return !!(m && ((Array.isArray(m.genre_ids) && m.genre_ids.length) || (Array.isArray(m.genres) && m.genres.length)));
 }
 
 /* ===== PROFILE LOADING OVERLAY (Netflix-style) ===== */
@@ -1389,15 +1569,30 @@ function selectProfile(id) {
 }
 
 function activateProfile(id) {
+  const wasInitialized = appInitialized;
   activeProfileId = id;
   localStorage.setItem('zorflix_active_profile', id);
   document.getElementById('pin-overlay').classList.remove('open');
+  closeProfileModal();
+  closeEditModal();
   updateProfileNavBtn();
   const ps = document.getElementById('profile-screen');
   ps.classList.add('hide');
   showProfileLoading(() => {
     setTimeout(() => { ps.style.display = 'none'; }, 10);
-    bootApp();
+    if (wasInitialized) {
+      closePlayer();
+      clearInterval(heroTimer);
+      heroList = [];
+      heroIdx = 0;
+      allMoviesCache = [];
+      showPage('home');
+      document.getElementById('nl-home')?.classList.add('active');
+      init();
+      showToast('Switched profile', 'green');
+    } else {
+      bootApp();
+    }
   });
 }
 
@@ -1420,17 +1615,27 @@ function updateProfileNavBtn() {
 /* PIN check */
 function pinCheckNext(i) {
   const el = document.getElementById('pincheck'+i);
+  el.value = el.value.replace(/\D/g,'').slice(0,1);
   if (el.value && i < 3) document.getElementById('pincheck'+(i+1)).focus();
-  if (i === 3 && el.value) {
-    const entered = [0,1,2,3].map(j => document.getElementById('pincheck'+j).value).join('');
-    const p = profiles.find(x => x.id === pinPendingProfile);
-    if (p && entered === p.pin) {
-      activateProfile(pinPendingProfile);
-    } else {
-      showToast('Wrong PIN', 'red');
-      ['pincheck0','pincheck1','pincheck2','pincheck3'].forEach(pid => document.getElementById(pid).value = '');
-      document.getElementById('pincheck0').focus();
-    }
+  if (i === 3 && el.value) verifyPinEntry();
+}
+function pinEnter(e) {
+  if (e.key === 'Enter') verifyPinEntry();
+  if (e.key === 'Backspace' && !e.currentTarget.value) {
+    const idx = Number(e.currentTarget.id.replace('pincheck',''));
+    if (idx > 0) document.getElementById('pincheck'+(idx-1)).focus();
+  }
+}
+function verifyPinEntry() {
+  const entered = [0,1,2,3].map(j => document.getElementById('pincheck'+j).value).join('');
+  if (entered.length < 4) return;
+  const p = profiles.find(x => x.id === pinPendingProfile);
+  if (p && entered === p.pin) {
+    activateProfile(pinPendingProfile);
+  } else {
+    showToast('Wrong PIN', 'red');
+    ['pincheck0','pincheck1','pincheck2','pincheck3'].forEach(pid => document.getElementById(pid).value = '');
+    document.getElementById('pincheck0').focus();
   }
 }
 function closePinOverlay() {
@@ -1441,29 +1646,47 @@ function closePinOverlay() {
 /* ===== PROFILE MODAL ===== */
 let editingProfileId = null;
 
-function openProfileModal() {
+let profileModalMode = 'switch';
+function profileText(v) {
+  return String(v || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function openProfileSwitcher() { openProfileModal('switch'); }
+function openProfileManager() { openProfileModal('manage'); }
+function openProfileModal(mode='switch') {
+  profileModalMode = mode;
   renderProfileList();
-  document.getElementById('profile-modal').classList.add('open');
+  const modal = document.getElementById('profile-modal');
+  const box = modal.querySelector('.profile-modal-box');
+  box.classList.toggle('manager-mode', mode === 'manage');
+  document.getElementById('profile-modal-title-text').textContent = mode === 'manage' ? 'Edit Profiles' : 'Switch Profile';
+  document.getElementById('profile-modal-hint').textContent = mode === 'manage' ? 'Create, edit, lock, or remove profiles from this darker control panel.' : 'Tap a profile to switch. Use the pencil to edit details.';
+  document.getElementById('profile-add-btn').style.display = mode === 'manage' ? 'flex' : 'none';
+  modal.classList.add('open');
 }
 function closeProfileModal() {
-  document.getElementById('profile-modal').classList.remove('open');
+  const modal = document.getElementById('profile-modal');
+  if (modal) modal.classList.remove('open');
+}
+function profileModalItemClick(el) {
+  if (profileModalMode === 'switch') selectProfile(el.dataset.profileId);
 }
 function renderProfileList() {
   const area = document.getElementById('profile-list-area');
-  area.innerHTML = profiles.map(p => `
-    <div class="profile-list-item">
-      <div class="profile-list-avatar">
-        ${p.pfp ? `<img src="${p.pfp}" alt="${p.name}">` : `<div class="profile-list-avatar-ph">${p.name.charAt(0).toUpperCase()}</div>`}
-      </div>
-      <div class="profile-list-info">
-        <div class="profile-list-name">${p.name}</div>
-        <div class="profile-list-sub">${p.kids ? 'Kids profile (family content only)' : 'Standard'}${p.pin ? ' · PIN protected' : ''}</div>
-      </div>
-      <div class="profile-pencil" onclick="openEditProfile('${p.id}');event.stopPropagation()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      </div>
-    </div>
-  `).join('');
+  area.innerHTML = profiles.map(p => {
+    const active = p.id === activeProfileId;
+    const safeId = profileText(p.id);
+    const safeName = profileText(p.name);
+    const avatar = p.pfp ? '<img src="' + profileText(p.pfp) + '" alt="' + safeName + '">' : '<div class="profile-list-avatar-ph">' + safeName.charAt(0).toUpperCase() + '</div>';
+    return '<div class="profile-list-item' + (active ? ' active' : '') + (profileModalMode === 'switch' ? ' switchable' : '') + '" data-profile-id="' + safeId + '" onclick="profileModalItemClick(this)">' +
+      '<div class="profile-list-avatar">' + avatar + '</div>' +
+      '<div class="profile-list-info"><div class="profile-list-name">' + safeName + '</div><div class="profile-list-sub">' + (p.kids ? 'Kids profile (family content only)' : 'Standard') + (p.pin ? ' · PIN protected' : '') + '</div></div>' +
+      (active ? '<span class="profile-current-chip">Current</span>' : '') +
+      '<div class="profile-pencil" data-profile-id="' + safeId + '" onclick="openEditProfile(this.dataset.profileId);event.stopPropagation()" title="Edit profile"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>' +
+    '</div>';
+  }).join('');
+  if (profileModalMode === 'manage') {
+    area.insertAdjacentHTML('beforeend', '<div class="profile-modal-actions"><button class="btn-cancel" onclick="closeProfileModal()">Done</button><button class="btn-save" onclick="startAddProfile()">New Profile</button></div>');
+  }
 }
 function startAddProfile() { openEditProfile(null); }
 
@@ -1541,14 +1764,17 @@ function handlePfpUpload(e) {
 }
 function pinNext(i) {
   const el = document.getElementById('pin'+i);
+  el.value = el.value.replace(/\D/g,'').slice(0,1);
   if (el.value && i < 3) document.getElementById('pin'+(i+1)).focus();
 }
 function saveProfile() {
   const name = document.getElementById('edit-name-input').value.trim();
   if (!name) { showToast('Enter a profile name', 'red'); return; }
   const kids = document.getElementById('edit-kids-toggle').checked;
-  const pin = [0,1,2,3].map(i => document.getElementById('pin'+i).value).join('');
-  const finalPin = pin.length === 4 && /^\d+$/.test(pin) ? pin : '';
+  const pinDigits = [0,1,2,3].map(i => document.getElementById('pin'+i).value).join('');
+  const pinCount = [0,1,2,3].filter(i => document.getElementById('pin'+i).value).length;
+  if (pinCount > 0 && pinCount < 4) { showToast('PIN must be 4 digits', 'red'); return; }
+  const finalPin = pinDigits.length === 4 && /^\d+$/.test(pinDigits) ? pinDigits : '';
   const avatarEl = document.getElementById('edit-avatar-preview');
   const pfp = avatarEl.dataset.pfp || (avatarEl.querySelector('img') ? avatarEl.querySelector('img').src : null);
 
@@ -1710,14 +1936,20 @@ updateListBadge();
 /* ===================== CONTINUE WATCHING ===================== */
 function addContinueWatching(item) {
   if (!userSettings.continuewatching) return;
-  continueWatching = continueWatching.filter(i => !(i.id === item.id && i.type === item.type));
-  continueWatching.unshift({ ...item, progress: Math.floor(Math.random()*55)+15 });
-  continueWatching = continueWatching.slice(0, 20);
+  const profileId = activeProfileId || 'default';
+  continueWatching = continueWatching.filter(i => !(i.id === item.id && i.type === item.type && (i.profileId || 'default') === profileId));
+  continueWatching.unshift({ ...item, profileId, kidsSafe: isKidsContent(item), genre_ids: item.genre_ids || (item.genres ? item.genres.map(g => g.id) : []), progress: Math.floor(Math.random()*55)+15 });
+  continueWatching = continueWatching.slice(0, 40);
   localStorage.setItem('zorflix_continue', JSON.stringify(continueWatching));
 }
+function getProfileContinueWatching() {
+  const profileId = activeProfileId || 'default';
+  return continueWatching.filter(i => (i.profileId || 'default') === profileId);
+}
 function clearContinueWatching() {
-  continueWatching = [];
-  localStorage.setItem('zorflix_continue', '[]');
+  const profileId = activeProfileId || 'default';
+  continueWatching = continueWatching.filter(i => (i.profileId || 'default') !== profileId);
+  localStorage.setItem('zorflix_continue', JSON.stringify(continueWatching));
   showToast('Continue watching cleared', 'green');
 }
 
@@ -1752,6 +1984,13 @@ function showToast(msg, color='green') {
 }
 
 /* ===================== PAGE ROUTING ===================== */
+function setMobileNavActive(key) {
+  document.querySelectorAll('.mobile-bottom-btn').forEach(btn => btn.classList.remove('active'));
+  const map = { home:0, movies:1, tv:2, list:3, settings:4 };
+  const idx = map[key];
+  const btns = document.querySelectorAll('.mobile-bottom-btn');
+  if (idx !== undefined && btns[idx]) btns[idx].classList.add('active');
+}
 function showPage(page) {
   ['home','detail','search','list','settings'].forEach(id => {
     const el = document.getElementById(id+'-page');
@@ -1766,6 +2005,7 @@ function showPage(page) {
 }
 function showHome() {
   showPage('home');
+  setMobileNavActive('home');
   document.getElementById('nl-home').classList.add('active');
   if (!heroList.length) init();
   else { clearInterval(heroTimer); heroIdx=0; runHero(); }
@@ -1773,12 +2013,14 @@ function showHome() {
 function goBack() { closePlayer(); showHome(); }
 function showList() {
   showPage('list');
+  setMobileNavActive('list');
   document.getElementById('nl-list').classList.add('active');
   renderListPage();
   window.scrollTo(0,0);
 }
 function showSettings() {
   showPage('settings');
+  setMobileNavActive('settings');
   document.getElementById('nl-settings').classList.add('active');
   buildThemeGrid();
   loadSettings();
@@ -1786,12 +2028,14 @@ function showSettings() {
 }
 function browseMovies() {
   showPage('home');
+  setMobileNavActive('movies');
   document.getElementById('nl-movies').classList.add('active');
   document.getElementById('main-content').innerHTML = '';
   loadMovieBrowse();
 }
 function browseTV() {
   showPage('home');
+  setMobileNavActive('tv');
   document.getElementById('nl-tv').classList.add('active');
   document.getElementById('main-content').innerHTML = '';
   loadTVBrowse();
@@ -1973,12 +2217,10 @@ function onRowScroll(el, label) {
 
 /* ===================== CONTINUE WATCHING ROW ===================== */
 function makeContinueWatchingRow() {
-  if (!continueWatching.length) return '';
-  let items = continueWatching.slice(0,12);
-  if (isKidsProfile()) items = items.filter(c => {
-    /* Try best-effort filter on continue watching */
-    return true; /* We can't filter by genre here easily without extra API calls */
-  });
+  const profileItems = getProfileContinueWatching();
+  if (!profileItems.length) return '';
+  let items = profileItems.slice(0,12);
+  if (isKidsProfile()) items = items.filter(c => c.kidsSafe || !hasGenreInfo(c));
   const cards = items.map(c => {
     const thumb = c.backdrop ? img(c.backdrop, 'w780') : (c.poster ? img(c.poster, 'w342') : '');
     return `<div class="cw-card" onclick="openDetail({id:${c.id},poster_path:'${c.poster||''}',backdrop_path:'${c.backdrop||''}',title:'${(c.title||'').replace(/'/g,"\\'")}',overview:'',vote_average:${c.rating||0},release_date:'${c.year||''}-01-01'},'${c.type}')">
@@ -2180,10 +2422,23 @@ async function loadTVBrowse() {
 
 /* ===================== DETAIL ===================== */
 async function openDetail(m, type) {
-  /* Block non-kids content when in kids profile */
   if (isKidsProfile() && !isKidsContent(m)) {
-    showToast('This content is not available in Kids mode', 'red');
-    return;
+    if (!hasGenreInfo(m) && m && m.id) {
+      try {
+        const checked = await apiFetch(`${type}/${m.id}`);
+        if (!isKidsContent(checked) || checked.adult) {
+          showToast('This content is not available in Kids mode', 'red');
+          return;
+        }
+        m = { ...m, ...checked, kidsSafe: true };
+      } catch(e) {
+        showToast('Could not verify this title for Kids mode', 'red');
+        return;
+      }
+    } else {
+      showToast('This content is not available in Kids mode', 'red');
+      return;
+    }
   }
   clearInterval(heroTimer);
   currentDetailItem = m;
@@ -2668,3 +2923,4 @@ loadSettings();
 </script>
 </body>
 </html>
+
