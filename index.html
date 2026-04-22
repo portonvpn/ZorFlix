@@ -13,6 +13,10 @@
 <meta name="twitter:title" content="ZorFlix">
 <meta name="twitter:description" content="The fastest modern streaming discovery platform.">
 <meta name="twitter:image" content="icon.png">
+<!-- FIREBASE SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <link rel="icon" type="image/png" href="https://zorflix.vercel.app/icon.png">
 <link rel="apple-touch-icon" href="https://zorflix.vercel.app/icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -92,41 +96,57 @@
   --wallpaper-overlay: rgba(0,15,5,0.55);
 }
 
-/* Glass wallpaper base */
+/* Glass wallpaper base — perf-optimized (no fixed bg, lighter blurs) */
 .theme-forestglass body,
 body.theme-forestglass {
-  background: var(--wallpaper) center/cover fixed !important;
+  /* `fixed` background is the #1 cause of jank on mobile + scroll on PC.
+     Use a plain cover background; an overlay handles the tint. */
+  background: var(--wallpaper) center/cover no-repeat !important;
+  background-color: #060d09 !important;
 }
 body.theme-forestglass::before {
   content:'';
   position:fixed;inset:0;z-index:-1;
   background: var(--wallpaper-overlay);
   pointer-events:none;
+  /* hint compositor */
+  transform: translateZ(0);
+  will-change: transform;
 }
 body.theme-forestglass .settings-card,
 body.theme-forestglass .profile-modal-box,
-body.theme-forestglass .edit-modal-box,
-body.theme-forestglass .profile-modal-box,
-body.theme-forestglass #profile-screen {
-  backdrop-filter: blur(28px) saturate(1.5);
-  -webkit-backdrop-filter: blur(28px) saturate(1.5);
+body.theme-forestglass .edit-modal-box {
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+}
+body.theme-forestglass #profile-screen,
+body.theme-forestglass #signin-screen {
+  /* Profile + sign-in screens cover the whole viewport — blurring the
+     entire viewport every paint is what makes Forest Glass laggy.
+     Use an opaque tinted background instead. */
+  background: linear-gradient(160deg, rgba(6,16,9,.92), rgba(10,28,14,.96)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 body.theme-forestglass #nav {
-  background: rgba(8,22,10,0.6) !important;
-  backdrop-filter: blur(30px) saturate(1.6);
-  -webkit-backdrop-filter: blur(30px) saturate(1.6);
+  background: rgba(8,22,10,0.82) !important;
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
   border-bottom: 1px solid rgba(100,200,120,0.15);
 }
 body.theme-forestglass .card {
-  background: rgba(20,50,25,0.5);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  /* Cards are repeated many times — backdrop-filter on each one is the
+     biggest perf hit. Use a flat translucent background instead. */
+  background: rgba(20,50,25,0.62);
   border: 1px solid rgba(100,200,120,0.15);
 }
-body.theme-forestglass .pin-box,
+body.theme-forestglass .pin-box {
+  background: rgba(10,30,12,0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
 body.theme-forestglass .pin-overlay {
-  background: rgba(10,30,12,0.82);
-  backdrop-filter: blur(28px);
+  background: rgba(0,0,0,0.85);
 }
 body.theme-forestglass #home-page,
 body.theme-forestglass #search-page,
@@ -176,6 +196,42 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
   transition:opacity .5s,transform .5s;
 }
 #profile-screen.hide{opacity:0;transform:scale(1.06);pointer-events:none}
+
+/* SIGN-IN SCREEN */
+#signin-screen{
+  position:fixed;inset:0;z-index:10000;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at top, #1a0a1a 0%, #050505 60%, #000 100%);
+  transition:opacity .45s, transform .45s;
+}
+#signin-screen.hide{opacity:0;transform:scale(1.05);pointer-events:none}
+.signin-card{
+  width:min(440px, 90vw); padding:48px 36px 36px; border-radius:22px;
+  background:rgba(20,20,28,.78);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
+  text-align:center;
+  backdrop-filter: blur(22px) saturate(1.3);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+}
+.signin-logo{font-family:'Bebas Neue',cursive;font-size:3rem;color:var(--accent);letter-spacing:10px;margin-bottom:10px}
+.signin-tag{color:rgba(255,255,255,.65);font-size:.95rem;margin-bottom:32px;line-height:1.5}
+.signin-google-btn{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  width:100%; padding:14px 20px; margin:0 0 12px;
+  background:#fff; color:#1a1a1a; font-weight:600; font-size:1rem;
+  border:none; border-radius:12px; cursor:pointer;
+  transition:transform .15s, box-shadow .2s;
+}
+.signin-google-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(255,255,255,.15)}
+.signin-google-btn:active{transform:translateY(0)}
+.signin-guest-btn{
+  width:100%; padding:12px; background:transparent; color:rgba(255,255,255,.75);
+  border:1px solid rgba(255,255,255,.12); border-radius:12px;
+  cursor:pointer; font-size:.92rem; transition:background .2s, color .2s;
+}
+.signin-guest-btn:hover{background:rgba(255,255,255,.06);color:#fff}
+.signin-foot{margin-top:22px;font-size:.72rem;color:rgba(255,255,255,.4);line-height:1.5}
 
 .profile-screen-logo-img{
   width:68px;
@@ -1130,11 +1186,11 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
 
 <!-- iOS FULLSCREEN PLAYER OVERLAY -->
 <div id="ios-fs-overlay">
-  <iframe id="ios-fs-frame"
-    allowfullscreen webkit-allowfullscreen mozallowfullscreen
-    allow="autoplay; encrypted-media; fullscreen; picture-in-picture; web-share"
+<iframe id="ios-fs-frame"
+    allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
     playsinline webkit-playsinline
-    style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000"></iframe>
+    style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000">
+</iframe>
   <div id="ios-fs-loading">
     <div class="ios-spinner"></div>
     <div class="ios-spinner-label">Loading</div>
@@ -1148,8 +1204,22 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
   <div class="pl-logo">ZORFLIX</div>
 </div>
 
+<!-- SIGN-IN SCREEN (shown first, before profile selection) -->
+<div id="signin-screen">
+  <div class="signin-card">
+    <div class="signin-logo">ZORFLIX</div>
+    <div class="signin-tag">Sign in to sync your profiles, list & history</div>
+    <button class="signin-google-btn" onclick="signInGoogle()">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35.5 24 35.5c-6.4 0-11.5-5.1-11.5-11.5S17.6 12.5 24 12.5c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.6 6.1 29 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16.1 19 13 24 13c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.6 6.6 29 4.5 24 4.5 16.3 4.5 9.7 8.7 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5 0 9.6-1.9 13-5l-6-5.1c-2 1.4-4.4 2.1-7 2.1-5.3 0-9.7-3.4-11.3-8l-6.6 5.1C9.5 39.5 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.5l6 5.1c4.2-3.9 6.6-9.6 6.6-15.6 0-1.2-.1-2.4-.4-3.5z"/></svg>
+      Sign in with Google
+    </button>
+    <button class="signin-guest-btn" onclick="continueAsGuest()">Continue as guest</button>
+    <div class="signin-foot">By continuing you agree to use ZorFlix at your own discretion.</div>
+  </div>
+</div>
+
 <!-- PROFILE SCREEN -->
-<div id="profile-screen">
+<div id="profile-screen" style="display:none">
   <div class="profile-screen-logo">ZORFLIX</div>
   <div class="profile-screen-title">Who's watching?</div>
   <div class="profiles-grid" id="profiles-grid"></div>
@@ -1284,6 +1354,13 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
     <div class="nav-link" id="nl-settings" onclick="showSettings()">Settings</div>
   </div>
   <div class="nav-spacer"></div>
+  <!-- FIREBASE LOGIN UI -->
+<div id="auth-ui" style="display: flex; align-items: center; gap: 10px; margin-right: 12px;">
+  <button id="login-btn" class="nav-icon-btn" onclick="loginWithGoogle()" title="Sync with Google">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </button>
+  <img id="user-photo" style="display:none; width:34px; height:34px; border-radius:50%; border:2px solid var(--accent); cursor:pointer;" onclick="logout()" title="Logout">
+</div>
   <div style="position:relative">
     <div class="search-wrap">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -1432,16 +1509,16 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
           <div class="ep-list-loading"><div class="ep-spinner"></div> Loading episodes...</div>
         </div>
       </div>
-      <div id="player-wrap">
-        <iframe id="player" allowfullscreen webkit-allowfullscreen mozallowfullscreen
-          allow="autoplay; encrypted-media; fullscreen; picture-in-picture; web-share"
-          sandbox="allow-scripts allow-same-origin allow-presentation"
-          playsinline webkit-playsinline></iframe>
-        <div class="player-bar">
-          <div class="now-playing">Now Playing: <b id="now-playing-name"></b></div>
-          <button class="close-player-btn" onclick="closePlayer()">✕ Close</button>
-        </div>
-      </div>
+<div id="player-wrap" style="display:none; margin-top:20px; width:100%;">
+<iframe id="player"
+  allow="autoplay; encrypted-media; fullscreen"
+  style="width:100%;height:100%;border:none;">
+</iframe>
+  <div class="player-bar">
+    <div class="now-playing">Now Playing: <b id="now-playing-name"></b></div>
+    <button class="close-player-btn" onclick="closePlayer()" style="cursor:pointer; padding:5px 10px; background:var(--bg4); border-radius:5px; color:var(--txt);">✕ Close</button>
+  </div>
+</div>
       <div class="detail-stats" id="d-stats"></div>
       <div class="detail-tabs">
         <div class="detail-tab active" onclick="switchTab('cast')">Cast</div>
@@ -1655,6 +1732,109 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
 <div id="toast-container"></div>
 
 <script>
+
+/* ===================== FIREBASE CORE LOGIC ===================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyDUdiKAiCto9QezzqTSMDAJ0TdgYWEveYg",
+  authDomain: "zorflix-backend.firebaseapp.com",
+  projectId: "zorflix-backend",
+  storageBucket: "zorflix-backend.firebasestorage.app",
+  messagingSenderId: "321905344244",
+  appId: "1:321905344244:web:591703e11d8a42f557a8a1",
+  measurementId: "G-JTZEVCW8EN"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+let currentUser = null;
+
+// Handle Login/Logout UI & Data Loading
+auth.onAuthStateChanged(async (user) => {
+  const loginBtn = document.getElementById('login-btn');
+  const userPhoto = document.getElementById('user-photo');
+  if (user) {
+    currentUser = user;
+    loginBtn.style.display = 'none';
+    userPhoto.style.display = 'block';
+    userPhoto.src = user.photoURL;
+    showToast("Synced with Cloud", "green");
+    await pullData(); // Download cloud data
+    // If the user already had an active session, skip the sign-in screen.
+    try { showProfileScreenAfterAuth(); } catch(_) {}
+  } else {
+    currentUser = null;
+    loginBtn.style.display = 'block';
+    userPhoto.style.display = 'none';
+  }
+});
+
+async function loginWithGoogle() {
+  try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); } 
+  catch (e) { showToast("Login failed", "red"); }
+}
+
+async function logout() {
+  if(confirm("Logout and clear local cache?")) {
+    await auth.signOut();
+    localStorage.clear();
+    location.reload();
+  }
+}
+
+// UPLOAD to Cloud
+async function pushData() {
+  if (!currentUser) return;
+  try {
+    await db.collection('users').doc(currentUser.uid).set({
+      watchlist, 
+      continueWatching, 
+      userSettings, 
+      profiles, 
+      searchHistory, // Added this
+      currentTheme,  // Added this
+      amoledOn,      // Added this
+      lastSync: new Date()
+    }, { merge: true });
+  } catch (e) { console.error("Cloud push failed:", e); }
+}
+
+// DOWNLOAD from Cloud
+async function pullData() {
+  if (!currentUser) return;
+  const doc = await db.collection('users').doc(currentUser.uid).get();
+  
+  if (doc.exists) {
+    const data = doc.data();
+    // Load all data from cloud
+    if (data.watchlist) watchlist = data.watchlist;
+    if (data.continueWatching) continueWatching = data.continueWatching;
+    if (data.userSettings) userSettings = data.userSettings;
+    if (data.profiles) profiles = data.profiles;
+    if (data.searchHistory) searchHistory = data.searchHistory;
+    if (data.currentTheme) currentTheme = data.currentTheme;
+    if (data.amoledOn !== undefined) amoledOn = data.amoledOn;
+    
+    // Save to local storage so it stays after refresh
+    localStorage.setItem('zorflix_watchlist', JSON.stringify(watchlist));
+    localStorage.setItem('zorflix_continue', JSON.stringify(continueWatching));
+    localStorage.setItem('zorflix_profiles', JSON.stringify(profiles));
+    localStorage.setItem('zorflix_search_history', JSON.stringify(searchHistory));
+    localStorage.setItem('zorflix_theme2', currentTheme);
+    localStorage.setItem('zorflix_amoled', amoledOn ? '1' : '0');
+    
+    // Refresh the UI to show the new data
+    updateListBadge();
+    renderProfileScreen();
+    initTheme(); // Applies the colors immediately
+    buildThemeGrid(); // Updates the settings page dots
+    if (appInitialized) init(); 
+  } else {
+    // If this is a new cloud user, upload their current local data for the first time
+    pushData();
+  }
+}
+
 /* ===================== CONSTANTS ===================== */
 const API_KEY = '4305cb5b3a4d749637ce9333285844b2';
 const API_BASE = 'https://api.themoviedb.org/3';
@@ -1797,7 +1977,9 @@ if (!profiles) {
   localStorage.setItem('zorflix_profiles', JSON.stringify(profiles));
 }
 
-function saveProfiles() { localStorage.setItem('zorflix_profiles', JSON.stringify(profiles)); }
+function saveProfiles() { localStorage.setItem('zorflix_profiles', JSON.stringify(profiles)); 
+pushData();
+}
 function getActiveProfile() { return profiles.find(p => p.id === activeProfileId) || profiles[0]; }
 function isKidsProfile() { const p = getActiveProfile(); return p && p.kids; }
 function isKidsContent(m) {
@@ -2148,6 +2330,7 @@ function applyTheme(id) {
   currentTheme = id;
   localStorage.setItem('zorflix_theme2', id);
   document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.theme === id));
+  pushData();
 }
 function toggleAmoled() {
   amoledOn = !amoledOn;
@@ -2156,6 +2339,7 @@ function toggleAmoled() {
   const btn = document.getElementById('amoled-btn');
   btn.classList.toggle('active', amoledOn);
   document.getElementById('amoled-btn-text').textContent = amoledOn ? 'On' : 'Off';
+  pushData();
 }
 function buildThemeGrid() {
   const grid = document.getElementById('theme-grid');
@@ -2184,6 +2368,7 @@ initTheme();
 function saveSetting(key, val) {
   userSettings[key] = val;
   localStorage.setItem('zorflix_settings', JSON.stringify(userSettings));
+  pushData(); // <--- Add this line
 }
 function loadSettings() {
   const keys = ['autofull','continuewatching','adult','searchhistory'];
@@ -2242,6 +2427,9 @@ function toggleList(item) {
   if (idx >= 0) { watchlist.splice(idx, 1); showToast('Removed from My List', 'red'); }
   else { watchlist.unshift(item); showToast('Added to My List', 'green'); }
   saveWatchlist();
+  
+  pushData();
+  
 }
 function updateListBadge() {
   const badge = document.getElementById('list-badge');
@@ -2261,6 +2449,7 @@ function addContinueWatching(item) {
   continueWatching.unshift({ ...existing, ...item, profileId, kidsSafe: isKidsContent(item), genre_ids: item.genre_ids || (item.genres ? item.genres.map(g => g.id) : []), progress });
   continueWatching = continueWatching.slice(0, 40);
   localStorage.setItem('zorflix_continue', JSON.stringify(continueWatching));
+  pushData();
 }
 function getProfileContinueWatching() {
   const profileId = activeProfileId || 'default';
@@ -2281,6 +2470,7 @@ function clearContinueWatching() {
   continueWatching = continueWatching.filter(i => (i.profileId || 'default') !== profileId);
   localStorage.setItem('zorflix_continue', JSON.stringify(continueWatching));
   showToast('Continue watching cleared', 'green');
+  pushData(); 
 }
 
 /* ===================== SEARCH HISTORY ===================== */
@@ -2295,11 +2485,13 @@ function removeSearchHistory(q) {
   searchHistory = searchHistory.filter(h => h !== q);
   localStorage.setItem('zorflix_search_history', JSON.stringify(searchHistory));
   renderSearchHistoryBlock();
+  pushData(); 
 }
 function clearSearchHistory() {
   searchHistory = [];
   localStorage.setItem('zorflix_search_history', '[]');
   showToast('Search history cleared', 'green');
+  pushData();
 }
 
 /* ===================== TOAST ===================== */
@@ -2930,13 +3122,18 @@ function buildEpisodeCard(ep, sNum) {
       <div class="ep-meta">${rating?`<span class="ep-rating">★ ${rating}</span>`:''}${air?`<span class="ep-airdate">${air}</span>`:''}${runtime?`<span class="ep-runtime">· ${runtime}</span>`:''}</div>
     </div>
   </div>`;
-}
-const CINETARO_BASE = 'https://apicinetaro.falex43350.workers.dev';
-function buildPlayerUrl(type, id, season, episode) {
-  if (type === 'movie') return `${CINETARO_BASE}/movie/${id}/english`;
-  return `${CINETARO_BASE}/tv/${id}/${season}/${episode}/english`;
-}
+  }
+/* ===================== PLAYER CONFIG ===================== */
+const PLAYER_BASE = 'https://vidfast.pro'; 
 
+function buildPlayerUrl(type, id, season, episode) {
+  if (type === 'movie') {
+    // Correct Vidfast Movie Format: https://vidfast.pro/movie/{id}
+    return `${PLAYER_BASE}/movie/${id}`;
+  }
+  // Correct Vidfast TV Format: https://vidfast.pro/tv/${id}/${season}/${episode}
+  return `${PLAYER_BASE}/tv/${id}/${season}/${episode}`;
+}
 /* ===== CONTINUE WATCHING: progress tracking via postMessage ===== */
 let _cwProgressTimer = null;
 let _cwCurrentProgress = 0;
@@ -3237,10 +3434,54 @@ function bootApp() {
   init();
 }
 
-renderProfileScreen();
-document.getElementById('profile-screen').style.display = 'flex';
 buildThemeGrid();
 loadSettings();
+
+/* Show sign-in screen first. Profile screen only opens after the user
+   signs in with Google or chooses "Continue as guest". */
+(function showSigninFirst(){
+  const ss = document.getElementById('signin-screen');
+  const ps = document.getElementById('profile-screen');
+  if (ps) ps.style.display = 'none';
+  // If a previous session already chose guest, skip straight to profiles.
+  if (localStorage.getItem('zorflix_guest') === '1') {
+    if (ss) ss.style.display = 'none';
+    showProfileScreenAfterAuth();
+  } else {
+    if (ss) ss.style.display = 'flex';
+  }
+})();
+
+function showProfileScreenAfterAuth(){
+  const ss = document.getElementById('signin-screen');
+  if (ss) {
+    ss.classList.add('hide');
+    setTimeout(() => { ss.style.display = 'none'; }, 500);
+  }
+  const ps = document.getElementById('profile-screen');
+  if (ps) {
+    ps.style.display = 'flex';
+    ps.classList.remove('hide');
+  }
+  renderProfileScreen();
+}
+
+async function signInGoogle(){
+  try {
+    await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+    localStorage.removeItem('zorflix_guest');
+    // onAuthStateChanged will pull data; reveal profiles after a short beat.
+    showProfileScreenAfterAuth();
+  } catch(e){
+    console.error(e);
+    showToast('Sign-in failed', 'red');
+  }
+}
+
+function continueAsGuest(){
+  localStorage.setItem('zorflix_guest', '1');
+  showProfileScreenAfterAuth();
+}
 </script>
 </body>
 </html>
