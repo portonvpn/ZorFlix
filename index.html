@@ -789,6 +789,11 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
 .detail-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
 #player-wrap{display:none;margin-bottom:20px}
 #player{width:100%;aspect-ratio:16/9;border:none;border-radius:12px;background:#000}
+#player-wrap.fake-fs{position:fixed;inset:0;z-index:9999;margin:0;padding:0;background:#000;display:flex;flex-direction:column;}
+#player-wrap.fake-fs #player{width:100%;height:100%;aspect-ratio:unset;border-radius:0;flex:1;}
+#fake-fs-close{display:none;position:fixed;top:14px;right:16px;z-index:10000;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:1.1rem;width:36px;height:36px;border-radius:50%;cursor:pointer;align-items:center;justify-content:center;}
+#player-wrap.fake-fs ~ * #fake-fs-close, #player-wrap.fake-fs + #fake-fs-close{display:flex;}
+body.fake-fs-active{overflow:hidden;}
 .player-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg3);border-radius:0 0 12px 12px;border-top:1px solid var(--border)}
 .now-playing{font-size:.78rem;color:var(--txt2)}
 .close-player-btn{background:none;border:none;color:var(--txt2);cursor:pointer;font-size:.78rem;transition:color .15s}
@@ -1509,6 +1514,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
           <div class="ep-list-loading"><div class="ep-spinner"></div> Loading episodes...</div>
         </div>
       </div>
+<button id="fake-fs-close" onclick="exitFakeFs()" title="Exit Fullscreen">✕</button>
 <div id="player-wrap" style="display:none; margin-top:20px; width:100%;">
 <iframe id="player"
   allow="autoplay; encrypted-media; fullscreen"
@@ -3124,14 +3130,14 @@ function buildEpisodeCard(ep, sNum) {
   </div>`;
   }
 /* ===================== PLAYER CONFIG ===================== */
-const PLAYER_BASE = 'https://vidfast.pro'; 
+const PLAYER_BASE = 'https://vidsync.xyz/embed'; 
 
 function buildPlayerUrl(type, id, season, episode) {
   if (type === 'movie') {
-    // Correct Vidfast Movie Format: https://vidfast.pro/movie/{id}
+    // VidSync Movie Format: https://vidsync.xyz/embed/movie/{tmdbid}
     return `${PLAYER_BASE}/movie/${id}`;
   }
-  // Correct Vidfast TV Format: https://vidfast.pro/tv/${id}/${season}/${episode}
+  // VidSync TV Format: https://vidsync.xyz/embed/tv/{tmdbid}/{season}/{episode}
   return `${PLAYER_BASE}/tv/${id}/${season}/${episode}`;
 }
 /* ===== CONTINUE WATCHING: progress tracking via postMessage ===== */
@@ -3177,11 +3183,7 @@ function playEpisode(sNum, eNum) {
     playerOpen = true;
     wrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
     if (userSettings.autofull !== false) {
-      setTimeout(() => {
-        if (frame.requestFullscreen) frame.requestFullscreen();
-        else if (frame.webkitRequestFullscreen) frame.webkitRequestFullscreen();
-        else if (frame.mozRequestFullScreen) frame.mozRequestFullScreen();
-      }, 300);
+      setTimeout(() => enterFakeFs(), 300);
     }
   }
 }
@@ -3219,11 +3221,7 @@ function openPlayer(options = {}) {
   pendingContinueAutoPlay = null;
   wrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
   if (userSettings.autofull !== false) {
-    setTimeout(() => {
-      if (frame.requestFullscreen) frame.requestFullscreen();
-      else if (frame.webkitRequestFullscreen) frame.webkitRequestFullscreen();
-      else if (frame.mozRequestFullScreen) frame.mozRequestFullScreen();
-    }, 300);
+    setTimeout(() => enterFakeFs(), 300);
   }
 }
 
@@ -3255,6 +3253,7 @@ function closeIOSOverlay() {
 function closePlayer() {
   _stopCwProgressTracking();
   if (isIOS()) { closeIOSOverlay(); return; }
+  exitFakeFs();
   const frame = document.getElementById('player');
   if (frame) frame.src = '';
   const wrap = document.getElementById('player-wrap');
@@ -3264,13 +3263,26 @@ function closePlayer() {
   playerOpen = false;
   currentPlayerSrc = '';
 }
-document.addEventListener('fullscreenchange', handleFsExit);
-document.addEventListener('webkitfullscreenchange', handleFsExit);
-document.addEventListener('mozfullscreenchange', handleFsExit);
-function handleFsExit() {
-  const fsEl = document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement;
-  if (!fsEl && playerOpen && !isIOS()) closePlayer();
+function enterFakeFs() {
+  const wrap = document.getElementById('player-wrap');
+  const btn = document.getElementById('fake-fs-close');
+  wrap.classList.add('fake-fs');
+  wrap.style.display = 'flex';
+  btn.style.display = 'flex';
+  document.body.classList.add('fake-fs-active');
 }
+function exitFakeFs() {
+  const wrap = document.getElementById('player-wrap');
+  const btn = document.getElementById('fake-fs-close');
+  wrap.classList.remove('fake-fs');
+  wrap.style.display = playerOpen ? 'block' : 'none';
+  btn.style.display = 'none';
+  document.body.classList.remove('fake-fs-active');
+}
+// Escape key exits fake fullscreen
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('player-wrap').classList.contains('fake-fs')) exitFakeFs();
+});
 
 /* ===================== SEARCH ===================== */
 function onSearchFocus() {
@@ -3485,4 +3497,3 @@ function continueAsGuest(){
 </script>
 </body>
 </html>
-
