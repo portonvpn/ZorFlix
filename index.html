@@ -103,6 +103,20 @@ body.theme-forestglass #home-page,body.theme-forestglass #search-page,body.theme
 @keyframes glitchAnim{0%,90%,100%{clip-path:inset(0 0 0 0)}10%{clip-path:inset(20% 0 60% 0)}20%{clip-path:inset(50% 0 20% 0)}30%{clip-path:inset(10% 0 80% 0)}}
 @keyframes lavaAnim{0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}50%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%}}
 @keyframes shimmerAnim{0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes sunsetAnim{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes candyAnim{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:0% 0%}}
+@keyframes mintAnim{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes berryAnim{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.06)}100%{transform:rotate(360deg) scale(1)}}
+@keyframes goldAnim{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes toxicAnim{0%{background-position:0% 0%}100%{background-position:100% 100%}}
+@keyframes iceAnim{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes roseAnim{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes duskAnim{0%{transform:rotate(0deg)}100%{transform:rotate(-360deg)}}
+@keyframes plasmaAnim{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes emberAnim{0%,100%{background-position:0% 50%;filter:brightness(1)}50%{background-position:100% 50%;filter:brightness(1.2)}}
+@keyframes voidAnim{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(.88)}100%{transform:rotate(360deg) scale(1)}}
+@keyframes citrusAnim{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes neonAnim{0%,100%{background-position:0% 50%;filter:saturate(1)}50%{background-position:100% 50%;filter:saturate(1.4)}}
 
 .anim-pfp{width:100%;height:100%;display:block;border-radius:inherit}
 .anim-pfp-flame{background:linear-gradient(135deg,#ff416c,#ff4b2b,#ffa502,#ff416c);background-size:300% 300%;animation:flameAnim 2s ease infinite}
@@ -114,6 +128,20 @@ body.theme-forestglass #home-page,body.theme-forestglass #search-page,body.theme
 .anim-pfp-matrix{background:#000;position:relative;overflow:hidden}
 .anim-pfp-matrix::after{content:'01010\A11001\A10110\A01101';white-space:pre;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.4rem;color:#39ff14;letter-spacing:2px;animation:matrixAnim 1s ease infinite;font-family:monospace}
 .anim-pfp-ghost{background:radial-gradient(circle at 50% 40%,#fff 30%,rgba(255,255,255,0));animation:pulseAnim 2s ease-in-out infinite}
+.anim-pfp-sunset{background:linear-gradient(135deg,#ff9966,#ff5e62,#ffa17f,#ff9966);background-size:300% 300%;animation:sunsetAnim 3s ease infinite}
+.anim-pfp-candy{background:linear-gradient(135deg,#ff9a9e,#fecfef,#fbc2eb,#a6c1ee,#ff9a9e);background-size:300% 300%;animation:candyAnim 5s ease infinite}
+.anim-pfp-mint{background:linear-gradient(135deg,#00f5a0,#00d9f5,#00f5a0);background-size:300% 300%;animation:mintAnim 3s ease infinite}
+.anim-pfp-berry{background:conic-gradient(from 90deg,#8e2de2,#e94057,#f27121,#8e2de2);animation:berryAnim 5s ease-in-out infinite}
+.anim-pfp-gold{background:linear-gradient(135deg,#f6d365,#fda085,#f6d365);background-size:300% 300%;animation:goldAnim 3s ease infinite}
+.anim-pfp-toxic{background:linear-gradient(45deg,#0f0,#adff2f,#0f0,#39ff14);background-size:300% 300%;animation:toxicAnim 2.5s linear infinite}
+.anim-pfp-ice{background:linear-gradient(135deg,#e0eafc,#cfdef3,#a1c4fd,#c2e9fb,#e0eafc);background-size:300% 300%;animation:iceAnim 4s ease infinite}
+.anim-pfp-rose{background:linear-gradient(135deg,#f857a6,#ff5858,#f857a6);background-size:300% 300%;animation:roseAnim 3s ease infinite}
+.anim-pfp-dusk{background:conic-gradient(from 0deg,#2c3e50,#8e44ad,#e94057,#2c3e50);animation:duskAnim 6s linear infinite}
+.anim-pfp-plasma{background:linear-gradient(135deg,#ff00cc,#333399,#ff00cc);background-size:300% 300%;animation:plasmaAnim 3.5s ease infinite}
+.anim-pfp-ember{background:radial-gradient(circle,#ff512f,#dd2476,#ff512f);background-size:300% 300%;animation:emberAnim 2.5s ease infinite}
+.anim-pfp-void{background:conic-gradient(from 45deg,#000000,#3a1c71,#000000,#141e30);animation:voidAnim 6s ease-in-out infinite}
+.anim-pfp-citrus{background:linear-gradient(135deg,#f7ff00,#db36a4,#f7ff00);background-size:300% 300%;animation:citrusAnim 3s ease infinite}
+.anim-pfp-neon{background:linear-gradient(135deg,#f000ff,#00ffea,#f000ff);background-size:300% 300%;animation:neonAnim 2.5s ease infinite}
 
 /* ===== PERFORMANCE LAYER ===== */
 .card,.profile-item,.episode-card,.cw-card,.stream-item,.quality-card,.download-link-item,.sub-item,.track-menu-item,.settings-row{will-change:auto;contain:layout style}
@@ -1647,6 +1675,20 @@ const ANIMATED_AVATARS = [
   { key: 'anim:cyber',   cssClass: 'anim-pfp-cyber',   label: '💻 Cyber' },
   { key: 'anim:matrix',  cssClass: 'anim-pfp-matrix',  label: '📟 Matrix' },
   { key: 'anim:ghost',   cssClass: 'anim-pfp-ghost',   label: '👻 Ghost' },
+  { key: 'anim:sunset',  cssClass: 'anim-pfp-sunset',  label: '🌅 Sunset' },
+  { key: 'anim:candy',   cssClass: 'anim-pfp-candy',   label: '🍬 Candy' },
+  { key: 'anim:mint',    cssClass: 'anim-pfp-mint',    label: '🌿 Mint' },
+  { key: 'anim:berry',   cssClass: 'anim-pfp-berry',   label: '🍇 Berry' },
+  { key: 'anim:gold',    cssClass: 'anim-pfp-gold',    label: '🏆 Gold' },
+  { key: 'anim:toxic',   cssClass: 'anim-pfp-toxic',   label: '☢️ Toxic' },
+  { key: 'anim:ice',     cssClass: 'anim-pfp-ice',     label: '❄️ Ice' },
+  { key: 'anim:rose',    cssClass: 'anim-pfp-rose',    label: '🌹 Rose' },
+  { key: 'anim:dusk',    cssClass: 'anim-pfp-dusk',    label: '🌆 Dusk' },
+  { key: 'anim:plasma',  cssClass: 'anim-pfp-plasma',  label: '⚡ Plasma' },
+  { key: 'anim:ember',   cssClass: 'anim-pfp-ember',   label: '🔥 Ember' },
+  { key: 'anim:void',    cssClass: 'anim-pfp-void',    label: '🕳️ Void' },
+  { key: 'anim:citrus',  cssClass: 'anim-pfp-citrus',  label: '🍋 Citrus' },
+  { key: 'anim:neon',    cssClass: 'anim-pfp-neon',    label: '💜 Neon' },
 ];
 
 function isAnimatedPfp(pfp) { return pfp && pfp.startsWith('anim:'); }
@@ -2324,17 +2366,9 @@ async function fetchTrailerKey(id, type) {
 }
 
 function startHeroInactivityTimer(m) {
+  // Idle hero trailer auto-play disabled per user preference.
   clearTimeout(heroTrailerTimer);
-  if (!m || !m.id) return;
-  const type = m.media_type==='tv' ? 'tv' : 'movie';
-  heroTrailerTimer = setTimeout(async () => {
-    // Check if still on home page
-    if (activePage !== 'home') return;
-    const key = await fetchTrailerKey(m.id, type);
-    if (!key || activePage !== 'home') return;
-    heroTrailerKey = key;
-    showHeroTrailer(key);
-  }, 2000);
+  return;
 }
 
 function showHeroTrailer(key) {
@@ -2871,8 +2905,8 @@ function qualityBadge(q) {
 function showStreamPicker(streams, onSelect) {
   const overlay=document.getElementById('stream-picker');
   const list=document.getElementById('stream-list');
-  // Sort by quality ascending (720p first)
-  const sorted=[...streams].map((s,origIdx)=>({s,origIdx,...parseStreamInfo(s)})).sort((a,b)=>qualityOrder(a.quality)-qualityOrder(b.quality));
+  // Show links in their natural Torrentio order (no quality re-sorting) for normal watch
+  const sorted=streams.map((s,origIdx)=>({s,origIdx,...parseStreamInfo(s)}));
   list.innerHTML=sorted.map(({s,origIdx,quality,sizeGB,info})=>{
     const sizeStr=sizeGB?` · ${sizeGB.toFixed(1)} GB`:'';
     return `<div class="stream-item" onclick="selectStream(${origIdx})">
