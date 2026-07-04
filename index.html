@@ -324,6 +324,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
 .watchlist-badge{position:relative}
 .badge-count{position:absolute;top:-5px;right:-5px;background:var(--accent);color:#fff;font-size:.58rem;font-weight:700;width:17px;height:17px;border-radius:50%;display:none;align-items:center;justify-content:center;border:2px solid var(--bg)}
 .hamburger{display:none}
+.mobile-search-nav-btn{display:none}
 .profile-nav-btn{width:34px;height:34px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:border-color .2s;flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center}
 .profile-nav-btn:hover{border-color:var(--accent)}
 .profile-nav-btn img{width:100%;height:100%;object-fit:cover}
@@ -810,6 +811,35 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
   .notice-banner{left:10px;right:10px;top:auto;bottom:calc(86px + env(safe-area-inset-bottom));border-radius:14px}
   .player-logo-text{font-size:1.3rem;letter-spacing:4px}
   .player-btn-text span{display:none}
+
+  /* Hide desktop-only random movie entry points on mobile */
+  .random-movie-nav-btn,.random-movie-menu-link{display:none!important}
+  .mobile-search-nav-btn{display:flex}
+
+  /* Persistent, always-visible search bar at top of the dedicated search page */
+  .mobile-search-bar-wrap{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:11px 14px;margin-bottom:14px;color:var(--txt3)}
+  .mobile-search-bar-wrap:focus-within{border-color:var(--accent)}
+  #mobile-search-page-input{flex:1;background:none;border:none;outline:none;color:var(--txt);font-family:'Inter',sans-serif;font-size:.95rem;min-width:0}
+  #mobile-search-page-input::placeholder{color:var(--txt3)}
+  .mobile-search-clear-btn{background:none;border:none;color:var(--txt3);font-size:1.2rem;line-height:1;cursor:pointer;padding:0 2px;flex-shrink:0}
+
+  /* Performance: strip GPU-heavy backdrop-filters on mobile, use solid backgrounds instead */
+  #nav,#mobile-bottom-nav,#mobile-menu,#search-dropdown,.notice-banner,#back-btn{
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  }
+  #nav{background:#000!important}
+  #mobile-bottom-nav{background:#000!important}
+  #mobile-menu{background:var(--bg2)!important}
+
+  /* Performance: instant tap feedback, no 300ms delay, no lingering hover transitions */
+  a,button,.card,.nav-icon-btn,.nav-link,.mobile-bottom-btn,.btn-primary,.btn-secondary,.btn-list,.btn-download,.filter-tab,.history-chip,.theme-btn,.site-tile,.card-hover-btn,.card-list-btn,.row-btn{
+    touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  }
+  .card:active,.mobile-bottom-btn:active,.nav-icon-btn:active,.btn-primary:active,.btn-secondary:active,.btn-list:active,.btn-download:active,.filter-tab:active,.theme-btn:active{
+    transform:scale(.96);transition:transform .05s linear;
+  }
+  *{scroll-behavior:auto}
+  .card-trailer-preview,.hero-arrows{display:none!important}
 }
 @media(max-width:380px){.card,.skeleton-card{width:30vw;min-width:90px}}
 
@@ -1136,8 +1166,11 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
     </div>
     <div id="search-dropdown"></div>
   </div>
-  <button class="nav-icon-btn" onclick="randomMovie()" title="Random Movie">
+  <button class="nav-icon-btn random-movie-nav-btn" onclick="randomMovie()" title="Random Movie">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+  </button>
+  <button class="nav-icon-btn mobile-search-nav-btn" onclick="openSearchPage()" title="Search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
   </button>
   <div class="nav-icon-btn watchlist-badge" onclick="showList()" title="My List">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
@@ -1160,12 +1193,16 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
   <div class="nav-link" onclick="browseTV();closeMobileMenu()">TV Shows</div>
   <div class="nav-link" onclick="showList();closeMobileMenu()">My List</div>
   <div class="nav-link" onclick="showSettings();closeMobileMenu()">Settings</div>
-  <div class="nav-link" onclick="randomMovie();closeMobileMenu()">Random Movie</div>
+  <div class="nav-link random-movie-menu-link" onclick="randomMovie();closeMobileMenu()">Random Movie</div>
 </div>
 <div id="mobile-bottom-nav" aria-label="Mobile navigation">
   <button class="mobile-bottom-btn active" onclick="showHome()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 11.5 12 4l9 7.5V21h-6v-6H9v6H3z"/></svg>
     Home
+  </button>
+  <button class="mobile-bottom-btn" onclick="openSearchPage()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    Search
   </button>
   <button class="mobile-bottom-btn" onclick="browseMovies()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 5v16M17 5v16M3 10h18M3 16h18"/></svg>
@@ -1306,6 +1343,11 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
     <div class="search-page-title">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       Search
+    </div>
+    <div class="mobile-search-bar-wrap">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="mobile-search-page-input" type="text" inputmode="search" autocomplete="off" placeholder="Search movies & TV shows..." oninput="onSearchPageInput(event)" onkeydown="if(event.key==='Enter'){event.target.blur()}" onblur="commitSearchPageHistory()">
+      <button id="mobile-search-clear-btn" class="mobile-search-clear-btn" onclick="clearSearchPageInput()" style="display:none" aria-label="Clear search">&times;</button>
     </div>
     <div id="search-result-count" style="font-size:.84rem;color:var(--txt3);margin-bottom:14px"></div>
     <div class="search-filters">
@@ -1666,6 +1708,7 @@ let mobilePin = '';
 let currentPlayerImdbId = null;
 let currentPlayerSeason = null;
 let currentPlayerEpisode = null;
+let mobileSearchReqId = 0;
 
 /* ===================== PIN ===================== */
 function numpadPress(btn) { btn.classList.add('pressed'); }
@@ -2059,7 +2102,21 @@ function buildThemeGrid() {
     </button>
   `).join('');
 }
+function isMobileDevice() {
+  return window.matchMedia('(max-width:760px)').matches ||
+    /Android|iPhone|iPad|iPod|Mobile|webOS/i.test(navigator.userAgent) ||
+    (navigator.maxTouchPoints > 0 && window.matchMedia('(pointer:coarse)').matches);
+}
+function detectMobileAndForceAmoled() {
+  if (!isMobileDevice()) return;
+  document.body.classList.add('is-mobile-device');
+  if (localStorage.getItem('zorflix_amoled') === null) {
+    amoledOn = true;
+    localStorage.setItem('zorflix_amoled', '1');
+  }
+}
 function initTheme() {
+  detectMobileAndForceAmoled();
   applyTheme(currentTheme);
   document.body.classList.toggle('amoled-on', amoledOn);
   const amoledBtn = document.getElementById('amoled-btn');
@@ -2198,7 +2255,7 @@ function showToast(msg, color='green') {
 /* ===================== PAGE ROUTING ===================== */
 function setMobileNavActive(key) {
   document.querySelectorAll('.mobile-bottom-btn').forEach(btn=>btn.classList.remove('active'));
-  const map={home:0,movies:1,tv:2,list:3,settings:4};
+  const map={home:0,search:1,movies:2,tv:3,list:4,settings:5};
   const idx=map[key];
   const btns=document.querySelectorAll('.mobile-bottom-btn');
   if(idx!==undefined&&btns[idx])btns[idx].classList.add('active');
@@ -3379,6 +3436,71 @@ function renderSearchHistoryBlock(){
   const block=document.getElementById('search-history-block');
   if(!searchHistory.length){block.innerHTML='';return;}
   block.innerHTML=`<h4>Recent Searches</h4><div class="history-items">${searchHistory.map(h=>`<div class="history-chip" onclick="doFullSearch('${h.replace(/'/g,"\\'")}')"><span>${h}</span><span class="history-chip-x" onclick="event.stopPropagation();removeSearchHistory('${h.replace(/'/g,"\\'")}')" >✕</span></div>`).join('')}</div>`;
+}
+
+/* ===================== MOBILE SEARCH PAGE (instant, race-guarded) ===================== */
+function openSearchPage(){
+  showPage('search');
+  document.getElementById('nl-home')?.classList.remove('active');
+  setMobileNavActive('search');
+  window.scrollTo(0,0);
+  const input=document.getElementById('mobile-search-page-input');
+  if(input){
+    if(!input.value.trim()) renderSearchHistoryBlock();
+    setTimeout(()=>input.focus(),50);
+  }
+}
+function clearSearchPageInput(){
+  const input=document.getElementById('mobile-search-page-input');
+  if(!input)return;
+  input.value='';
+  document.getElementById('mobile-search-clear-btn').style.display='none';
+  mobileSearchReqId++;
+  searchMovieResults=[]; searchTVResults=[];
+  document.getElementById('search-result-count').textContent='';
+  document.getElementById('search-results-area').innerHTML='';
+  renderSearchHistoryBlock();
+  input.focus();
+}
+function commitSearchPageHistory(){
+  const input=document.getElementById('mobile-search-page-input');
+  const q=input&&input.value.trim();
+  if(q) addSearchHistory(q);
+}
+function onSearchPageInput(e){
+  const q=e.target.value.trim();
+  const clearBtn=document.getElementById('mobile-search-clear-btn');
+  if(clearBtn) clearBtn.style.display=q?'block':'none';
+  clearTimeout(searchDelay);
+  mobileSearchReqId++;
+  if(!q){
+    searchMovieResults=[]; searchTVResults=[];
+    document.getElementById('search-result-count').textContent='';
+    document.getElementById('search-results-area').innerHTML='';
+    renderSearchHistoryBlock();
+    return;
+  }
+  document.getElementById('search-history-block').innerHTML='';
+  searchDelay=setTimeout(()=>liveSearchPage(q),150);
+}
+async function liveSearchPage(q){
+  if(!q)return;
+  const reqId=++mobileSearchReqId;
+  document.getElementById('search-result-count').textContent=`Searching for "${q}"...`;
+  if(!document.getElementById('search-results-area').querySelector('.search-grid')){
+    document.getElementById('search-results-area').innerHTML='<div class="search-grid">'+Array(9).fill('<div class="skeleton-card skeleton"></div>').join('')+'</div>';
+  }
+  try{
+    const [movies,tv]=await Promise.all([apiFetch('search/movie',{query:q}),apiFetch('search/tv',{query:q})]);
+    if(reqId!==mobileSearchReqId) return;
+    searchMovieResults=(movies.results||[]).filter(m=>m.poster_path);
+    searchTVResults=(tv.results||[]).filter(m=>m.poster_path);
+    if(isKidsProfile()){searchMovieResults=searchMovieResults.filter(m=>isKidsContent(m));searchTVResults=searchTVResults.filter(m=>isKidsContent(m));}
+    const total=searchMovieResults.length+searchTVResults.length;
+    document.getElementById('search-result-count').textContent=`${total} result${total!==1?'s':''} for "${q}"`;
+    renderSearchResults();
+    setTimeout(()=>attachTrailerHovers(document.getElementById('search-results-area')),100);
+  }catch(err){ if(reqId===mobileSearchReqId) console.error(err); }
 }
 
 /* ===================== LIST PAGE ===================== */
