@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2150,6 +2151,13 @@ function loadSettings() {
 
 /* ===================== API ===================== */
 async function apiFetch(path, params={}) {
+  if (path === 'movie/top_rated') { path = 'discover/movie'; params = {...params, sort_by:'vote_average.desc','vote_count.gte':1000, with_release_type:'4|5'}; }
+  else if (path === 'movie/popular') { path = 'discover/movie'; params = {...params, sort_by: 'popularity.desc', with_release_type:'4|5'}; }
+  else if (path === 'trending/movie/week') { path = 'discover/movie'; params = {...params, sort_by: 'popularity.desc', with_release_type:'4|5', 'vote_count.gte': 150}; }
+  else if (path === 'movie/now_playing') { path = 'discover/movie'; params = {...params, sort_by: 'primary_release_date.desc', with_release_type:'4|5', 'vote_count.gte': 50}; }
+  else if (path === 'movie/upcoming') { path = 'discover/movie'; params = {...params, sort_by: 'primary_release_date.desc', with_release_type:'4|5', 'vote_count.gte': 15}; }
+  else if (path === 'discover/movie') { params.with_release_type = '4|5'; }
+
   const qs = new URLSearchParams({ api_key: API_KEY, ...params });
   const url = `${API_BASE}/${path}?${qs}`;
   if (cache[url]) return cache[url];
