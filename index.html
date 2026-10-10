@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -684,6 +681,25 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
 .list-empty h3{font-size:1.2rem;margin-bottom:8px;color:var(--txt2)}
 .list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
 
+/* ===== DEV PAGE ===== */
+#dev-page{display:none;min-height:100vh;padding:84px 32px 60px}
+.dev-lock{max-width:380px;margin:40px auto;text-align:center;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px 24px}
+.dev-lock h3{font-family:'Bebas Neue',cursive;font-size:1.8rem;letter-spacing:2px;margin:12px 0 6px}
+.dev-lock p{font-size:.8rem;color:var(--txt3);margin-bottom:18px}
+.dev-input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--txt);border-radius:10px;padding:12px 14px;font-size:.9rem;outline:none;text-align:center;letter-spacing:3px;font-family:inherit}
+.dev-input:focus{border-color:var(--accent)}
+.dev-input.err{border-color:#e5484d;animation:devshake .3s}
+@keyframes devshake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.dev-btn{margin-top:12px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px;font-weight:600;font-size:.88rem;cursor:pointer;font-family:inherit}
+.dev-btn.ghost{background:var(--bg3);color:var(--txt2);border:1px solid var(--border);width:auto;padding:8px 16px;margin:0 0 20px}
+.api-option{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.api-option:last-child{border-bottom:none}
+.api-option:hover{background:var(--bg3)}
+.api-radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--txt3);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.api-option.active .api-radio{border-color:var(--accent)}
+.api-option.active .api-radio:after{content:'';width:10px;height:10px;border-radius:50%;background:var(--accent)}
+@media(max-width:768px){#dev-page{padding:80px 14px calc(90px + env(safe-area-inset-bottom))}}
+
 /* ===== SETTINGS PAGE ===== */
 #settings-page{display:none;min-height:100vh;padding:84px 32px 60px}
 .settings-title{font-family:'Bebas Neue',cursive;font-size:2.8rem;letter-spacing:3px;margin-bottom:30px;display:flex;align-items:center;gap:12px}
@@ -1257,6 +1273,30 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
   <div id="list-grid-area"></div>
 </div>
 
+<!-- DEV PAGE -->
+<div id="dev-page">
+  <div id="dev-lock" class="dev-lock">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <h3>Developer Access</h3>
+    <p>Enter the access code to continue</p>
+    <input type="password" id="dev-code" class="dev-input" placeholder="••••" autocomplete="off" onkeydown="if(event.key==='Enter')submitDevCode()">
+    <button class="dev-btn" onclick="submitDevCode()">Unlock</button>
+    <button class="dev-btn ghost" style="margin-top:10px" onclick="showSettings()">Back</button>
+  </div>
+  <div id="dev-panel" style="display:none">
+    <div class="settings-title">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      DEV
+    </div>
+    <button class="dev-btn ghost" onclick="showSettings()">← Back to Settings</button>
+    <div class="settings-section">
+      <div class="settings-section-title">Streaming API</div>
+      <div class="settings-card" id="api-list"></div>
+      <div style="font-size:.75rem;color:var(--txt3);margin-top:10px" id="api-status"></div>
+    </div>
+  </div>
+</div>
+
 <!-- SETTINGS PAGE -->
 <div id="settings-page">
   <div class="settings-title">
@@ -1389,6 +1429,19 @@ body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;overfl
           <div class="site-tile-info"><div class="site-tile-name">CemGrid</div><div class="site-tile-desc">A powerful grid-based media and content platform</div></div>
           <svg class="site-tile-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-section-title">Developer</div>
+    <div class="settings-card">
+      <div class="settings-row" style="cursor:pointer" onclick="showDev()">
+        <div class="settings-row-left">
+          <div class="settings-row-label">DEV</div>
+          <div class="settings-row-desc">Restricted developer options</div>
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--txt3)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </div>
     </div>
   </div>
@@ -2148,7 +2201,7 @@ function setMobileNavActive(key) {
   if(idx!==undefined&&btns[idx])btns[idx].classList.add('active');
 }
 function showPage(page) {
-  ['home','detail','search','list','settings'].forEach(id=>{
+  ['home','detail','search','list','settings','dev'].forEach(id=>{
     const el=document.getElementById(id+'-page');
     if(el)el.style.display=(id===page)?'block':'none';
   });
@@ -2168,6 +2221,20 @@ function showList() {
   showPage('list'); setMobileNavActive('list');
   document.getElementById('nl-list').classList.add('active');
   renderListPage(); window.scrollTo(0,0);
+}
+function showDev() {
+  showPage('dev'); setMobileNavActive('settings');
+  document.getElementById('nl-settings').classList.add('active');
+  const ok = sessionStorage.getItem('zorflix_dev')==='1';
+  document.getElementById('dev-lock').style.display = ok?'none':'block';
+  document.getElementById('dev-panel').style.display = ok?'block':'none';
+  if (ok) renderApiList();
+  window.scrollTo(0,0);
+}
+function submitDevCode() {
+  const inp = document.getElementById('dev-code');
+  if (inp.value === 'cem') { sessionStorage.setItem('zorflix_dev','1'); inp.value=''; showDev(); }
+  else { inp.classList.remove('err'); void inp.offsetWidth; inp.classList.add('err'); inp.value=''; showToast('Wrong code','red'); }
 }
 function showSettings() {
   showPage('settings'); setMobileNavActive('settings');
@@ -2648,14 +2715,58 @@ function buildEpisodeCard(ep,sNum) {
 
 /* ===================== FILMU EMBED PLAYER ===================== */
 const FILMU_BASE = 'https://embed.filmu.in';
+const STREAM_APIS = {
+  filmu:   { name:'FilmU',          desc:'embed.filmu.in (default)', base:'https://embed.filmu.in', path:'' },
+  vidsrc:  { name:'VidSrc Party',   desc:'to.vidsrc.party',          base:'https://to.vidsrc.party', path:'/embed' },
+  braflix: { name:'Braflix',        desc:'braflix.dev',              base:'https://braflix.dev',     path:'/embed' }
+};
+let streamApi = localStorage.getItem('zorflix_stream_api');
+if (!STREAM_APIS[streamApi]) streamApi = 'filmu';
+
+// Global (site-wide) streaming API via Firestore: config/site
+try {
+  db.collection('config').doc('site').onSnapshot(snap => {
+    const v = snap.exists && snap.data().streamApi;
+    if (STREAM_APIS[v]) {
+      streamApi = v; localStorage.setItem('zorflix_stream_api', v);
+      if (typeof renderApiList==='function' && document.getElementById('api-list')) renderApiList();
+    }
+  }, () => {});
+} catch(_) {}
+
+function renderApiList() {
+  const el = document.getElementById('api-list'); if (!el) return;
+  el.innerHTML = Object.entries(STREAM_APIS).map(([k,a]) => `
+    <div class="api-option ${k===streamApi?'active':''}" onclick="setStreamApi('${k}')">
+      <div class="settings-row-left">
+        <div class="settings-row-label">${a.name}</div>
+        <div class="settings-row-desc">${a.desc}</div>
+      </div>
+      <div class="api-radio"></div>
+    </div>`).join('');
+}
+async function setStreamApi(k) {
+  if (!STREAM_APIS[k]) return;
+  streamApi = k; localStorage.setItem('zorflix_stream_api', k); renderApiList();
+  const st = document.getElementById('api-status');
+  try {
+    await db.collection('config').doc('site').set({ streamApi:k, updated:new Date() }, { merge:true });
+    showToast('Streaming API applied site-wide','green'); if(st) st.textContent='Applied for everyone.';
+  } catch(e) {
+    showToast('Saved locally only (server write blocked)','red');
+    if(st) st.textContent='Server write failed — check Firestore rules and that you are logged in.';
+  }
+}
 let currentPlayerType = null;
 let currentPlayerTmdbId = null;
 
 function getEmbedUrl(type, tmdbId, season, episode) {
+  const a = STREAM_APIS[streamApi] || STREAM_APIS.filmu;
+  const b = a.base + a.path;
   if (type === 'tv') {
-    return `${FILMU_BASE}/tv/${tmdbId}/${season || 1}/${episode || 1}`;
+    return `${b}/tv/${tmdbId}/${season || 1}/${episode || 1}`;
   }
-  return `${FILMU_BASE}/movie/${tmdbId}`;
+  return `${b}/movie/${tmdbId}`;
 }
 
 function togglePlayer() { playerOpen ? closePlayer() : openPlayer(); }
@@ -2817,7 +2928,7 @@ window.addEventListener('message', (e) => {
           localStorage.setItem('zorflix_continue', JSON.stringify(continueWatching));
         }
       }
-    } else if (e.data.type === 'FILMU_PLAYER_EVENT' && e.data.data) {
+    } else if ((e.data.type === 'FILMU_PLAYER_EVENT' || e.data.type === 'PLAYER_EVENT') && e.data.data) {
       const { currentTime, duration, tmdbId } = e.data.data;
       const targetId = tmdbId || currentPlayerTmdbId;
       if (targetId && currentTime != null && duration > 0) {
