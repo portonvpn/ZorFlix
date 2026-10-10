@@ -2481,31 +2481,24 @@ function attachAllTrailers() { const mc=document.getElementById('main-content');
 async function init() {
   if(isKidsProfile()){await initKids();return;}
   const mc=document.getElementById('main-content');
-  const labels=['Top Rated Movies','Trending This Week','Popular Movies','Now Playing','Trending TV Shows','Action','Sci-Fi','Horror','Comedy','Animation'];
-  mc.innerHTML=labels.map(l=>makeSkeletonRow(l)).join('');
+  mc.innerHTML=['Top Rated','Popular','Now Playing','Upcoming','Action','Sci-Fi','Horror','Comedy','Animation','Documentaries'].map(l=>makeSkeletonRow(l)).join('');
   try {
-    const [topRated,trending,popular,nowPlaying,trendingTV,action,scifi,horror,comedy,animation,upcoming,popularTV,topRatedTV,docs]=await Promise.all([
-      apiFetch('movie/top_rated'),apiFetch('trending/movie/week'),apiFetch('movie/popular'),apiFetch('movie/now_playing'),
-      apiFetch('trending/tv/week'),apiFetch('discover/movie',{with_genres:28,sort_by:'popularity.desc'}),
-      apiFetch('discover/movie',{with_genres:878,sort_by:'popularity.desc'}),apiFetch('discover/movie',{with_genres:27,sort_by:'popularity.desc'}),
-      apiFetch('discover/movie',{with_genres:35,sort_by:'popularity.desc'}),apiFetch('discover/movie',{with_genres:16,sort_by:'popularity.desc'}),
-      apiFetch('movie/upcoming'),apiFetch('tv/popular'),apiFetch('tv/top_rated'),apiFetch('discover/movie',{with_genres:99,sort_by:'popularity.desc'}),
+    const [topRated,popular,nowPlaying,upcoming,action,scifi,horror,comedy,animation,docs]=await Promise.all([
+      apiFetch('movie/top_rated'),apiFetch('movie/popular'),apiFetch('movie/now_playing'),apiFetch('movie/upcoming'),
+      apiFetch('discover/movie',{with_genres:28,sort_by:'popularity.desc'}),apiFetch('discover/movie',{with_genres:878,sort_by:'popularity.desc'}),
+      apiFetch('discover/movie',{with_genres:27,sort_by:'popularity.desc'}),apiFetch('discover/movie',{with_genres:35,sort_by:'popularity.desc'}),
+      apiFetch('discover/movie',{with_genres:16,sort_by:'popularity.desc'}),apiFetch('discover/movie',{with_genres:99,sort_by:'popularity.desc'}),
     ]);
     heroList=topRated.results.filter(m=>m.backdrop_path&&m.poster_path).slice(0,6);
-    if(!heroList.length)heroList=trending.results.filter(m=>m.backdrop_path&&m.poster_path).slice(0,6);
+    if(!heroList.length)heroList=popular.results.filter(m=>m.backdrop_path&&m.poster_path).slice(0,6);
     allMoviesCache=[...(topRated.results||[]),...(popular.results||[])];
     buildHeroDots(); runHero();
     mc.innerHTML=makeContinueWatchingRow()+(watchlist.length?makeRow('My List',watchlist.map(w=>({id:w.id,poster_path:w.poster,backdrop_path:w.backdrop,title:w.title,vote_average:w.rating,release_date:w.year+'-01-01',_wtype:w.type,genre_ids:[]})),null):'')
-      +makeRow('Top Rated Movies',topRated.results,'movie')+makeRow('Trending This Week',trending.results,'movie')
-      +makeRow('Popular Movies',popular.results,'movie')+makeRow('Now Playing',nowPlaying.results,'movie')
-      +makeRow('Coming Soon',upcoming.results,'movie')+makeRow('Trending TV Shows',trendingTV.results,'tv')
-      +makeRow('Popular TV Shows',popularTV.results,'tv')+makeRow('Top Rated TV',topRatedTV.results,'tv')
-      +makeRow('Action',action.results,'movie')+makeRow('Science Fiction',scifi.results,'movie')
-      +makeRow('Horror',horror.results,'movie')+makeRow('Comedy',comedy.results,'movie')
-      +makeRow('Animation',animation.results,'movie')+makeRow('Documentaries',docs.results,'movie');
+      +makeRow('Top Rated',topRated.results,'movie')+makeRow('Popular',popular.results,'movie')+makeRow('Now Playing',nowPlaying.results,'movie')+makeRow('Coming Soon',upcoming.results,'movie')
+      +makeRow('Action',action.results,'movie')+makeRow('Sci-Fi',scifi.results,'movie')+makeRow('Horror',horror.results,'movie')+makeRow('Comedy',comedy.results,'movie')+makeRow('Animation',animation.results,'movie')+makeRow('Documentaries',docs.results,'movie');
     setTimeout(attachAllTrailers,100);
   } catch(e) {
-    document.getElementById('main-content').innerHTML='<div class="no-results">Failed to load content. Check your connection.</div>';
+    mc.innerHTML='<div class="no-results">Failed to load content. Check your connection.</div>';
   }
 }
 async function initKids() {
