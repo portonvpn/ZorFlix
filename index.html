@@ -2480,26 +2480,7 @@ function attachAllTrailers() { const mc=document.getElementById('main-content');
 /* ===================== INIT ===================== */
 async function init() {
   if(isKidsProfile()){await initKids();return;}
-  const mc=document.getElementById('main-content');
-  mc.innerHTML=['Top Rated','Popular','Now Playing','Upcoming','Action','Sci-Fi','Horror','Comedy','Animation','Documentaries'].map(l=>makeSkeletonRow(l)).join('');
-  try {
-    const [topRated,popular,nowPlaying,upcoming,action,scifi,horror,comedy,animation,docs]=await Promise.all([
-      apiFetch('movie/top_rated'),apiFetch('movie/popular'),apiFetch('movie/now_playing'),apiFetch('movie/upcoming'),
-      apiFetch('discover/movie',{with_genres:28,sort_by:'popularity.desc'}),apiFetch('discover/movie',{with_genres:878,sort_by:'popularity.desc'}),
-      apiFetch('discover/movie',{with_genres:27,sort_by:'popularity.desc'}),apiFetch('discover/movie',{with_genres:35,sort_by:'popularity.desc'}),
-      apiFetch('discover/movie',{with_genres:16,sort_by:'popularity.desc'}),apiFetch('discover/movie',{with_genres:99,sort_by:'popularity.desc'}),
-    ]);
-    heroList=topRated.results.filter(m=>m.backdrop_path&&m.poster_path).slice(0,6);
-    if(!heroList.length)heroList=popular.results.filter(m=>m.backdrop_path&&m.poster_path).slice(0,6);
-    allMoviesCache=[...(topRated.results||[]),...(popular.results||[])];
-    buildHeroDots(); runHero();
-    mc.innerHTML=makeContinueWatchingRow()+(watchlist.length?makeRow('My List',watchlist.map(w=>({id:w.id,poster_path:w.poster,backdrop_path:w.backdrop,title:w.title,vote_average:w.rating,release_date:w.year+'-01-01',_wtype:w.type,genre_ids:[]})),null):'')
-      +makeRow('Top Rated',topRated.results,'movie')+makeRow('Popular',popular.results,'movie')+makeRow('Now Playing',nowPlaying.results,'movie')+makeRow('Coming Soon',upcoming.results,'movie')
-      +makeRow('Action',action.results,'movie')+makeRow('Sci-Fi',scifi.results,'movie')+makeRow('Horror',horror.results,'movie')+makeRow('Comedy',comedy.results,'movie')+makeRow('Animation',animation.results,'movie')+makeRow('Documentaries',docs.results,'movie');
-    setTimeout(attachAllTrailers,100);
-  } catch(e) {
-    mc.innerHTML='<div class="no-results">Failed to load content. Check your connection.</div>';
-  }
+  browseMovies();
 }
 async function initKids() {
   const mc=document.getElementById('main-content');
